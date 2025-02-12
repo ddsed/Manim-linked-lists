@@ -1,5 +1,6 @@
 # Python-generated files
 __pycache__/
+my-project/__pycache__/
 *.py[oc]
 build/
 dist/
@@ -8,3 +9,25 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Manim generated files
+media/
+my-project/media/
+
+# Output files (videos, images)
+*.mp4
+*.mov
+*.gif
+*.png
+*.jpg
+*.webm
+*.mobject
+*.partial_movie_files/
+my-project/*.mp4
+my-project/*.mov
+my-project/*.gif
+my-project/*.png
+my-project/*.jpg
+my-project/*.webm
+my-project/*.mobject
+my-project/*.partial_movie_files/
