@@ -62,12 +62,20 @@ class LinkedListScene(Scene):
             y_pos = DOWN * row * ROW_SPACING  # Move downward for each new row
             node.move_to(x_pos + y_pos)  # Set final position
 
-        # Center the first row
-        if len(nodes) > 0:
-            linked_list_center = (nodes[0].get_left() + nodes[min(9, len(nodes)-1)].get_right()) / 2
-            shift_amount = ORIGIN - linked_list_center  # Calculate shift vector
+        # Center the whole structure
+        if nodes:
+            leftmost = min(node.get_left()[0] for node in nodes)  # X-coordinate of the leftmost node
+            rightmost = max(node.get_right()[0] for node in nodes)  # X-coordinate of the rightmost node
+            topmost = max(node.get_top()[1] for node in nodes)  # Y-coordinate of the topmost node
+            bottommost = min(node.get_bottom()[1] for node in nodes)  # Y-coordinate of the bottommost node
 
-            # Shift all nodes accordingly
+            # Compute the center of the entire structure
+            structure_center = np.array([(leftmost + rightmost) / 2, (topmost + bottommost) / 2, 0])
+
+            # Compute shift vector to move structure center to ORIGIN
+            shift_amount = ORIGIN - structure_center
+
+            # Shift accordingly
             for node in nodes:
                 node.shift(shift_amount)
 
@@ -95,7 +103,6 @@ class LinkedListScene(Scene):
         self.insert_node_between(nodes, insert_idx1, insert_idx2, new_letter)
 
     def insert_node_between(self, nodes, idx1, idx2, new_value):
-        if len(nodes) < 10:
             # Find the reference nodes for insertion + color code them
             node1 = nodes[idx1]
             node2 = nodes[idx2]     
@@ -115,29 +122,99 @@ class LinkedListScene(Scene):
                 print("Error: Specified nodes not found in the list.")
                 return
 
-            # Shift simultaneously before manipulation
-            shifts = []
+            if len(nodes) < 10:
+                # Shift simultaneously before manipulation
+                shifts = []
 
-            # Nodes from the first node to node1 left by 1 unit + their arrows
-            for node in nodes[:nodes.index(node1) + 1]: 
-                shifts.append(node.animate.shift(LEFT * 1))
-                if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(LEFT * 1)) 
+                # Nodes from the first node to node1 left by 1 unit + their arrows
+                for node in nodes[:nodes.index(node1) + 1]: 
+                    shifts.append(node.animate.shift(LEFT * 1))
+                    if node.next_arrow:
+                        shifts.append(node.next_arrow.animate.shift(LEFT * 1)) 
 
-            # Nodes from node2 to the last node right by 1 unit + their arrows
-            for node in nodes[nodes.index(node2):]: 
-                shifts.append(node.animate.shift(RIGHT * 1))
-                if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
-            
-            # New stretched arrow
-            long_arrow = Arrow (
-                start=node1.get_right() + LEFT * 1, 
-                end=node2.get_left() + RIGHT * 1,
-                tip_length=0.2,
-                buff=0.1 
-            )
+                # Nodes from node2 to the last node right by 1 unit + their arrows
+                for node in nodes[nodes.index(node2):]: 
+                    shifts.append(node.animate.shift(RIGHT * 1))
+                    if node.next_arrow:
+                        shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
+                
+                # New stretched arrow
+                long_arrow = Arrow (
+                    start=node1.get_right() + LEFT * 1, 
+                    end=node2.get_left() + RIGHT * 1,
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+            else:
+                # Shift nodes from node2 onwards
+                shifts = []
+        
+                for i in range(nodes.index(node2), len(nodes)):
+                    node_i = nodes[i]
 
+                    # Shift node_i to the position of node_i_next
+                    # The last node shift logic
+                    if i == len(nodes) - 1:
+                        if node_i.row % 2 != 0:
+                            shifts.append(node_i.animate.shift(LEFT * 2))
+                        else:
+                            shifts.append(node_i.animate.shift(RIGHT * 2))
+                    else:
+                        node_i_next = nodes[i + 1]
+                        shifts.append(node_i.animate.move_to(node_i_next.get_center()))
+                    
+                    # If node_i has a next arrow, shift it to node_i_next's arrow position
+                    if node_i.next_arrow:
+                        # Even lines without edge cases
+                        if node_i.row % 2 == 0 and i != 8 and i != 9 and i != 28 and i != 29:
+                            shifts.append(node_i.next_arrow.animate.shift((RIGHT * 2)))
+                        # From even line to odd line to become long arrow
+                        elif i == 8 or i == 28:
+                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                            node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1, 
+                            node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                        ))
+                        # From even line to odd line to become short arrow
+                        elif i == 9 or i == 29:
+                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                            node_i.get_left() + DOWN * 3 + LEFT * 0.1,  
+                            node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1  
+                        ))
+                        # From odd line to even line to become long arrow
+                        elif i == 18 or i == 38:
+                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                            node_i.get_bottom() + LEFT * 2 + DOWN * 0.1, 
+                            node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                        ))
+                        # From odd line to even line to become short arrow
+                        elif i == 19 or i == 39:
+                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                            node_i.get_right() + DOWN * 3 + RIGHT * 0.1,  
+                            node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1  
+                        ))
+                        # For odd lines
+                        else:
+                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                            node_i.get_left() + LEFT * 2 + LEFT * 0.1,  
+                            node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
+                        ))
+                # Checking what line we are inserting to
+                if node2.row % 2 == 0:
+                    # Stretch the existing arrow between node1 and node2 for even lines
+                    long_arrow = Arrow(
+                        start=node1.get_right(), 
+                        end=node2.get_left() + RIGHT * 2,
+                        tip_length=0.2,
+                        buff=0.1
+                    )
+                else:
+                    # Stretch the existing arrow between node1 and node2 for odd lines
+                    long_arrow = Arrow(
+                        start=node1.get_left(), 
+                        end=node2.get_right() + LEFT * 2,
+                        tip_length=0.2,
+                        buff=0.1
+                    )
             # Displaying stretching the arrow simultaneously with shifting
             self.play(
                 *shifts, 
@@ -156,13 +233,24 @@ class LinkedListScene(Scene):
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
 
-            # Arrows to new node
-            arrow_to_new = Arrow(
-                start=long_arrow.get_start(), 
-                end=new_node.get_left(),
-                tip_length=0.2,
-                buff=0.1 
-            )
+            # Logic for either 1 l ine, or even lines 
+            if len(nodes) < 10 or node2.row % 2 == 0:
+                # Arrows to new node
+                arrow_to_new = Arrow(
+                    start=long_arrow.get_start(), 
+                    end=new_node.get_left(),
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+            # Logic for odd lines
+            else:
+                # Arrows to new node
+                arrow_to_new = Arrow(
+                    start=long_arrow.get_start(), 
+                    end=new_node.get_right(),
+                    tip_length=0.2,
+                    buff=0.1 
+                )
 
             new_node.next_arrow = new_node.set_next(node2, node1.row, node1.col, node2.row, node2.col)
 
@@ -178,19 +266,34 @@ class LinkedListScene(Scene):
                 else:
                     node.remove_updater(update_node_position)
 
-            # Updater for arrow to new node
-            def update_arrow_to_new(arrow):
-                arrow.put_start_and_end_on(
-                    node1.get_right() + RIGHT * 0.1,  
-                    new_node.get_left() + LEFT * 0.1 
-                )
+            if len(nodes) < 10 or node2.row % 2 == 0:
+                # Updater for arrow to new node
+                def update_arrow_to_new(arrow):
+                    arrow.put_start_and_end_on(
+                        node1.get_right() + RIGHT * 0.1,  
+                        new_node.get_left() + LEFT * 0.1 
+                    )
 
-            # Updater for arrow from new node
-            def update_arrow_from_new(arrow):
-                arrow.put_start_and_end_on(
-                    new_node.get_right() + RIGHT * 0.1, 
-                    node2.get_left() + LEFT * 0.1 
-                )
+                # Updater for arrow from new node
+                def update_arrow_from_new(arrow):
+                    arrow.put_start_and_end_on(
+                        new_node.get_right() + RIGHT * 0.1, 
+                        node2.get_left() + LEFT * 0.1 
+                    )
+            else:
+                # Updater for arrow to new node
+                def update_arrow_to_new(arrow):
+                    arrow.put_start_and_end_on(
+                        node1.get_left() + LEFT * 0.1,  
+                        new_node.get_right() + RIGHT * 0.1 
+                    )
+
+                # Updater for arrow from new node
+                def update_arrow_from_new(arrow):
+                    arrow.put_start_and_end_on(
+                        new_node.get_left() + LEFT * 0.1, 
+                        node2.get_right() + RIGHT * 0.1 
+                    )
             
             # Add updaters
             new_node.add_updater(update_node_position)
@@ -207,138 +310,4 @@ class LinkedListScene(Scene):
             new_node.remove_updater(update_node_position)
             new_node.next_arrow.remove_updater(update_arrow_from_new)
             node1.next_arrow.remove_updater(update_arrow_to_new)
-        else:
-            # Find the reference nodes for insertion + color code them
-            node1 = nodes[idx1]
-            node2 = nodes[idx2]     
-
-            textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-            textfunc.next_to(nodes[0], UP, buff=0.5)
-            textfunc.align_to(nodes[0], LEFT)
-            self.play(
-                node1.box.animate.set_fill(GREEN, opacity=0.35),
-                node2.box.animate.set_fill(GREEN, opacity=0.35),
-                FadeIn(textfunc)
-            )
-
-            self.play(FadeOut(textfunc))
-
-            if not node1 or not node2:
-                print("Error: Specified nodes not found in the list.")
-                return
-
-            # # Shift nodes from node2 onwards
-            shifts = []
-            # for node in nodes[nodes.index(node2):]:
-            #     shifts.append(node.animate.shift(RIGHT * 2))  # Shift nodes to the right
-            #     if node.next_arrow:
-            #         shifts.append(node.next_arrow.animate.shift(RIGHT * 2))  # Shift arrows accordingly
-            for i in range(nodes.index(node2), len(nodes)):
-                node_i = nodes[i]
-
-                # Shift node_i to the position of node2
-                if i == len(nodes) - 1:
-                    shifts.append(node_i.animate.shift(LEFT * 2))
-                else:
-                    node_i_next = nodes[i + 1]
-                    shifts.append(node_i.animate.move_to(node_i_next.get_center()))
-                
-                # If node_i has a next arrow, shift it to node_i_next's arrow position
-                if node_i.next_arrow:
-                    if i < 8:
-                        shifts.append(node_i.next_arrow.animate.shift((RIGHT * 2)))
-                    elif i == 8 or i == 18:
-                        shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                        node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,  # Position the start of the arrow
-                        node_i_next.get_top() + DOWN * 3 + UP * 0.1   # Position the end of the arrow
-                    ))
-                    elif i == 9 or i == 19:
-                        shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                        node_i.get_left() + DOWN * 3 + LEFT * 0.1,  # Position the start of the arrow
-                        node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1  # Position the end of the arrow
-                    ))
-                    else:
-                        shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                        node_i.get_left() + LEFT * 2 + LEFT * 0.1,  # Position the start of the arrow
-                        node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1     # Position the end of the arrow
-                    ))
-            # Stretch the existing arrow between node1 and node2
-            long_arrow = Arrow(
-                start=node1.get_right(), 
-                end=node2.get_left() + RIGHT * 2,
-                tip_length=0.2,
-                buff=0.1
-            )
-
-            # Display stretching the arrow
-            self.play(
-                *shifts,  # Shift nodes and arrows
-                Transform(node1.next_arrow, long_arrow),  # Stretch the arrow
-                run_time=1
-            )
-
-            # Create the new node to insert
-            new_node = LinkedListNodeBasic(new_value)
-            initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
-            new_node.move_to(initial_position)
-
-            self.play(
-                FadeIn(new_node), 
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
-            )
-
-            # Create arrow from node1 to the new node
-            arrow_to_new = Arrow(
-                start=long_arrow.get_start(),
-                end=new_node.get_left(),
-                tip_length=0.2,
-                buff=0.1
-            )
-
-            # Set the next pointer for the new node
-            new_node.next_arrow = new_node.set_next(node2, node1.row, node1.col, node2.row, node2.col)
-
-            self.play(
-                Transform(node1.next_arrow, arrow_to_new),  # Update the arrow from node1 to new node
-                FadeIn(new_node.next_arrow)  # Show the new node's next arrow
-            )
-
-            # Final position for the new node
-            final_position = initial_position - UP * 1.5
-
-            # Updater for new node movement
-            def update_node_position(node):
-                if not np.allclose(node.get_center(), final_position):
-                    node.shift(DOWN * 0.05)
-                else:
-                    node.remove_updater(update_node_position)
-
-            # Updater for arrow to new node
-            def update_arrow_to_new(arrow):
-                arrow.put_start_and_end_on(
-                    node1.get_right() + RIGHT * 0.1,  
-                    new_node.get_left() + LEFT * 0.1
-                )
-
-            # Updater for arrow from new node
-            def update_arrow_from_new(arrow):
-                arrow.put_start_and_end_on(
-                    new_node.get_right() + RIGHT * 0.1, 
-                    node2.get_left() + LEFT * 0.1
-                )
-
-            # Add updaters
-            new_node.add_updater(update_node_position)
-            new_node.next_arrow.add_updater(update_arrow_from_new)
-            node1.next_arrow.add_updater(update_arrow_to_new)
-
-            # Animate the node and arrows moving to their final positions
-            self.play(
-                new_node.animate.move_to(final_position),
-                run_time=1.5,
-            )
-
-            # Remove updaters
-            new_node.remove_updater(update_node_position)
-            new_node.next_arrow.remove_updater(update_arrow_from_new)
-            node1.next_arrow.remove_updater(update_arrow_to_new)
+        
