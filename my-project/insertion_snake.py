@@ -289,7 +289,10 @@ class LinkedListScene(Scene):
         
         # Create the new node to insert
         new_node = LinkedListNodeBasic(new_value)
-        initial_position = (node1.get_bottom() + node2.get_top()) / 2 + LEFT * 1.5
+        if node1 == 9:
+            initial_position = (node1.get_bottom() + node2.get_top()) / 2 + LEFT * 1.5
+        else:
+            initial_position = (node1.get_bottom() + node2.get_top()) / 2 + RIGHT * 1.5
         
         new_node.move_to(initial_position)
 
@@ -332,12 +335,20 @@ class LinkedListScene(Scene):
         node1.next_arrow.add_updater(update_arrow_to_new)
 
         # Arrows to new node
-        arrow_from_new = Arrow(
-            start=node2.get_left(), 
-            end=node2.get_right() + LEFT * 2,
-            tip_length=0.2,
-            buff=0.1 
-        )
+        if node1 == 9:
+            arrow_from_new = Arrow(
+                start=node2.get_left(), 
+                end=node2.get_right() + LEFT * 2,
+                tip_length=0.2,
+                buff=0.1 
+            )
+        else:
+            arrow_from_new = Arrow(
+                start=node2.get_right(), 
+                end=node2.get_left() + RIGHT * 2,
+                tip_length=0.2,
+                buff=0.1 
+            )
 
         self.play(
             *shifts,
