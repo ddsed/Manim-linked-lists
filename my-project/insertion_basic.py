@@ -25,7 +25,7 @@ class LinkedListScene(Scene):
 
         # Get input from user
         node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
-        insert_letter1, insert_letter2 = input("Enter the two node letters where a new node should be inserted: ").split()
+        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based): ").split())
         new_letter = input("Enter the new node letter: ")
 
         # Create nodes
@@ -60,12 +60,13 @@ class LinkedListScene(Scene):
         self.wait(1)
 
         # Insert a new node
-        self.insert_node_between(nodes, insert_letter1, insert_letter2, new_letter)
+        self.insert_node_between(nodes, insert_idx1, insert_idx2, new_letter)
 
-    def insert_node_between(self, nodes, letter1, letter2, new_value):
+    def insert_node_between(self, nodes, idx1, idx2, new_value):
         # Find the reference nodes for insertion + color code them
-        node1 = next((node for node in nodes if node.text.text == letter1), None)
-        node2 = next((node for node in nodes if node.text.text == letter2), None)
+        node1 = nodes[idx1]
+        node2 = nodes[idx2]     
+
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
         textfunc.next_to(nodes[0], UP, buff=0.5)
         textfunc.align_to(nodes[0], LEFT)
