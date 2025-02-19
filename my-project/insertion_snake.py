@@ -10,7 +10,7 @@ class LinkedListNodeBasic(VGroup):
         self.row = row
         self.col = col
 
-    def set_next(self, next_node, row1, col1, row2, col2):
+    def set_next(self, next_node, row1, row2):
         if self.next_arrow:
             self.remove(self.next_arrow)
 
@@ -92,9 +92,9 @@ class LinkedListScene(Scene):
             self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
             self.play(FadeOut(textfuncadd, run_time=0.3))
             if i > 0:
-                row1, col1 = (i - 1) // 10, (i - 1) % 10
-                row2, col2 = i // 10, i % 10
-                arrow = nodes[i - 1].set_next(node, row1, col1, row2, col2)
+                row1 = (i - 1) // 10
+                row2 = i // 10
+                arrow = nodes[i - 1].set_next(node, row1, row2)
                 self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
                 self.play(FadeOut(textfuncarrow, run_time=0.3))
 
@@ -204,7 +204,7 @@ class LinkedListScene(Scene):
                     buff=0.1 
                 )
 
-            new_node.next_arrow = new_node.set_next(node2, node1.row, node1.col, node2.row, node2.col)
+            new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
 
             self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
@@ -315,7 +315,7 @@ class LinkedListScene(Scene):
             buff=0.1 
         )
 
-        new_node.next_arrow = new_node.set_next(node2, node1.row, node1.col, node2.row, node2.col)
+        new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
         self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
         # Shift nodes from node2 onwards
