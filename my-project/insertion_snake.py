@@ -149,58 +149,7 @@ class LinkedListScene(Scene):
                     buff=0.1 
                 )
             else:
-                # Shift nodes from node2 onwards
-                shifts = []
-        
-                for i in range(nodes.index(node2), len(nodes)):
-                    node_i = nodes[i]
-
-                    # Shift node_i to the position of node_i_next
-                    # The last node shift logic
-                    if i == len(nodes) - 1:
-                        if node_i.row % 2 != 0:
-                            shifts.append(node_i.animate.shift(LEFT * 2))
-                        else:
-                            shifts.append(node_i.animate.shift(RIGHT * 2))
-                    else:
-                        node_i_next = nodes[i + 1]
-                        shifts.append(node_i.animate.move_to(node_i_next.get_center()))
-                    
-                    # If node_i has a next arrow, shift it to node_i_next's arrow position
-                    if node_i.next_arrow:
-                        # Even lines without edge cases
-                        if node_i.row % 2 == 0 and i != 8 and i != 9 and i != 28 and i != 29:
-                            shifts.append(node_i.next_arrow.animate.shift((RIGHT * 2)))
-                        # From even line to odd line to become long arrow
-                        elif i == 8 or i == 28:
-                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                            node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1, 
-                            node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                        ))
-                        # From even line to odd line to become short arrow
-                        elif i == 9 or i == 29:
-                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                            node_i.get_left() + DOWN * 3 + LEFT * 0.1,  
-                            node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1  
-                        ))
-                        # From odd line to even line to become long arrow
-                        elif i == 18 or i == 38:
-                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                            node_i.get_bottom() + LEFT * 2 + DOWN * 0.1, 
-                            node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                        ))
-                        # From odd line to even line to become short arrow
-                        elif i == 19 or i == 39:
-                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                            node_i.get_right() + DOWN * 3 + RIGHT * 0.1,  
-                            node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1  
-                        ))
-                        # For odd lines
-                        else:
-                            shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                            node_i.get_left() + LEFT * 2 + LEFT * 0.1,  
-                            node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                        ))
+                shifts = shift_nodes_to_the_right(nodes, idx2)
                 # Checking what line we are inserting to
                 if node2.row % 2 == 0:
                     # Stretch the existing arrow between node1 and node2 for even lines
@@ -370,57 +319,7 @@ class LinkedListScene(Scene):
         self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
         # Shift nodes from node2 onwards
-        shifts = []
-
-        for i in range(nodes.index(node2), len(nodes)):
-            node_i = nodes[i]
-
-            # Shift node_i to the position of node_i_next
-            # The last node shift logic
-            if i == len(nodes) - 1:
-                if node_i.row % 2 != 0:
-                    shifts.append(node_i.animate.shift(LEFT * 2))
-                else:
-                    shifts.append(node_i.animate.shift(RIGHT * 2))
-            else:
-                node_i_next = nodes[i + 1]
-                shifts.append(node_i.animate.move_to(node_i_next.get_center()))
-            
-            # If node_i has a next arrow, shift it to node_i_next's arrow position
-            if node_i.next_arrow:
-                # Even lines without edge cases
-                if node_i.row % 2 == 0 and i != 8 and i != 9 and i != 28 and i != 29:
-                    shifts.append(node_i.next_arrow.animate.shift((RIGHT * 2)))
-                # From even line to odd line to become long arrow
-                elif i == 8 or i == 28:
-                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1, 
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
-                # From even line to odd line to become short arrow
-                elif i == 9 or i == 29:
-                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + DOWN * 3 + LEFT * 0.1,  
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1  
-                ))
-                # From odd line to even line to become long arrow
-                elif i == 18 or i == 38:
-                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + LEFT * 2 + DOWN * 0.1, 
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
-                # From odd line to even line to become short arrow
-                elif i == 19 or i == 39:
-                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_right() + DOWN * 3 + RIGHT * 0.1,  
-                    node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1  
-                ))
-                # For odd lines
-                else:
-                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + LEFT * 2 + LEFT * 0.1,  
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                ))
+        shifts = shift_nodes_to_the_right(nodes, idx2)
         
         # Updater for arrow to new node
         def update_arrow_to_new(arrow):
@@ -464,3 +363,57 @@ class LinkedListScene(Scene):
             ),
             run_time=0.8
         )
+
+def shift_nodes_to_the_right(nodes, idx2):
+    shifts = []
+
+    # Iterate through the nodes starting from idx2
+    for i in range(nodes.index(nodes[idx2]), len(nodes)):
+        node_i = nodes[i]
+
+        # Shift node_i to the position of node_i_next
+        if i == len(nodes) - 1:
+            if node_i.row % 2 != 0:
+                shifts.append(node_i.animate.shift(LEFT * 2))
+            else:
+                shifts.append(node_i.animate.shift(RIGHT * 2))
+        else:
+            node_i_next = nodes[i + 1]
+            shifts.append(node_i.animate.move_to(node_i_next.get_center()))
+
+        # If node_i has a next arrow, shift it accordingly
+        if node_i.next_arrow:
+            # Even lines without edge cases
+            if node_i.row % 2 == 0 and i != 8 and i != 9 and i != 28 and i != 29:
+                shifts.append(node_i.next_arrow.animate.shift(RIGHT * 2))
+            # From even line to odd line to become long arrow
+            elif i == 8 or i == 28:
+                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                    node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
+                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                ))
+            # From even line to odd line to become short arrow
+            elif i == 9 or i == 29:
+                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                    node_i.get_left() + DOWN * 3 + LEFT * 0.1,
+                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
+                ))
+            # From odd line to even line to become long arrow
+            elif i == 18 or i == 38:
+                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                    node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
+                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                ))
+            # From odd line to even line to become short arrow
+            elif i == 19 or i == 39:
+                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                    node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
+                    node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1
+                ))
+            # For odd lines
+            else:
+                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                    node_i.get_left() + LEFT * 2 + LEFT * 0.1,
+                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
+                ))
+    return shifts
