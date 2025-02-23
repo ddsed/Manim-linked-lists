@@ -102,8 +102,63 @@ class LinkedListScene(Scene):
         # Insert a new node
         if insert_idx1 == 9 or insert_idx1 == 19:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
+        elif insert_idx2 == 0:
+            self.insert_node_head(nodes, insert_idx2, new_letter)
         else:
             self.insert_node_row(nodes, insert_idx1, insert_idx2, new_letter)
+
+    def insert_node_head(self, nodes, idx2, new_value):
+        # Find the reference nodes for insertion + color code them
+            node2 = nodes[idx2]     
+
+            textfunc = Text(f"insert({node2.text.text})", font_size = 36)
+            textfunc.next_to(nodes[0], UP, buff=0.5)
+            textfunc.align_to(nodes[0], LEFT)
+            self.play(
+                node2.box.animate.set_fill(GREEN, opacity=0.35),
+                FadeIn(textfunc)
+            )
+
+            self.play(FadeOut(textfunc))
+
+            if not node2:
+                print("Error: Specified nodes not found in the list.")
+                return
+            
+            # Create the new node to insert
+            new_node = LinkedListNodeBasic(new_value)
+            initial_position = node2.get_left() + UP * 1.55
+            new_node.move_to(initial_position)
+
+            # new_node.next_arrow = Arrow(
+            #     start=new_node.get_bottom(), 
+            #     end=node2.get_top(),
+            #     tip_length=0.2,
+            #     buff=0.1
+            # )
+
+            new_node.next_arrow = new_node.set_next(node2, 0, 1)
+
+            transformed_arrow = Arrow(
+                start=new_node.get_right() + DOWN * 1.55 + RIGHT * 0.5, 
+                end=node2.get_left() + RIGHT * 2,
+                tip_length=0.2,
+                buff=0.1
+            )
+            
+            shifts = shift_nodes_to_the_right(nodes, idx2)
+
+            self.play(
+                FadeIn(new_node),
+                FadeIn(new_node.next_arrow),
+                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+            )
+            self.play(
+                *shifts,
+                new_node.animate.move_to(node2.get_center()),
+                Transform(new_node.next_arrow, transformed_arrow)
+            )
+
 
     def insert_node_row(self, nodes, idx1, idx2, new_value):
             # Find the reference nodes for insertion + color code them
