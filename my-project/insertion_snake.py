@@ -104,6 +104,8 @@ class LinkedListScene(Scene):
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
             self.insert_node_head(nodes, insert_idx2, new_letter)
+        elif insert_idx1 == len(nodes) - 1:
+            self.insert_node_tail(nodes, insert_idx1, new_letter)
         else:
             self.insert_node_row(nodes, insert_idx1, insert_idx2, new_letter)
 
@@ -130,13 +132,6 @@ class LinkedListScene(Scene):
             initial_position = node2.get_left() + UP * 1.55
             new_node.move_to(initial_position)
 
-            # new_node.next_arrow = Arrow(
-            #     start=new_node.get_bottom(), 
-            #     end=node2.get_top(),
-            #     tip_length=0.2,
-            #     buff=0.1
-            # )
-
             new_node.next_arrow = new_node.set_next(node2, 0, 1)
 
             transformed_arrow = Arrow(
@@ -158,6 +153,88 @@ class LinkedListScene(Scene):
                 new_node.animate.move_to(node2.get_center()),
                 Transform(new_node.next_arrow, transformed_arrow)
             )
+
+    def insert_node_tail(self, nodes, idx1, new_value):
+        # Find the reference nodes for insertion + color code them
+            node1 = nodes[idx1]     
+
+            textfunc = Text(f"insert({node1.text.text})", font_size = 36)
+            textfunc.next_to(nodes[0], UP, buff=0.5)
+            textfunc.align_to(nodes[0], LEFT)
+            self.play(
+                node1.box.animate.set_fill(GREEN, opacity=0.35),
+                FadeIn(textfunc)
+            )
+
+            self.play(FadeOut(textfunc))
+
+            if not node1:
+                print("Error: Specified nodes not found in the list.")
+                return
+            
+            new_node = LinkedListNodeBasic(new_value)
+            
+            # Create the new node to insert
+            if node1.row % 2 != 0:
+                initial_position = node1.get_left() + DOWN * 1.55
+                new_node.move_to(initial_position)
+
+                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+
+                transformed_arrow = Arrow(
+                    start=node1.get_left(), 
+                    end=new_node.get_right() + LEFT * 1.5 + UP * 1.55,
+                    tip_length=0.2,
+                    buff=0.1
+                )
+
+                self.play(
+                    FadeIn(new_node),
+                    FadeIn(node1.next_arrow),
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
+                self.play(
+                    new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                    Transform(node1.next_arrow, transformed_arrow)
+                )
+            else:
+                initial_position = node1.get_right() + DOWN * 1.55
+                new_node.move_to(initial_position)
+
+                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+
+                transformed_arrow = Arrow(
+                    start=node1.get_right(), 
+                    end=new_node.get_left() + RIGHT * 1.5 + UP * 1.55,
+                    tip_length=0.2,
+                    buff=0.1
+                )
+
+                self.play(
+                    FadeIn(new_node),
+                    FadeIn(node1.next_arrow),
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
+
+                self.play(
+                    new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                    Transform(node1.next_arrow, transformed_arrow)
+                )
+            if len(nodes) < 10:
+                # Shift simultaneously before manipulation
+                shifts = []
+
+                # Nodes shift left by 1 unit + their arrows
+                for node in nodes: 
+                    shifts.append(node.animate.shift(LEFT * 1))
+                    if node.next_arrow:
+                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                 
+                shifts.append(new_node.animate.shift(LEFT * 1))
+                
+                self.play(
+                    *shifts 
+                )
 
 
     def insert_node_row(self, nodes, idx1, idx2, new_value):
