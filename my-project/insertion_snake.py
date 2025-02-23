@@ -39,7 +39,7 @@ class LinkedListScene(Scene):
 
         # Get input from user
         node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
-        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based): ").split())
+        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0; If you want to insert to the tail - enter the index of the last node twice: ").split())
         new_letter = input("Enter the new node letter: ")
 
         # Constants
@@ -100,7 +100,7 @@ class LinkedListScene(Scene):
 
         self.wait(1)
         # Insert a new node
-        if insert_idx1 == 9 or insert_idx1 == 19:
+        if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
             self.insert_node_head(nodes, insert_idx2, new_letter)
@@ -173,9 +173,35 @@ class LinkedListScene(Scene):
                 return
             
             new_node = LinkedListNodeBasic(new_value)
-            
-            # Create the new node to insert
-            if node1.row % 2 != 0:
+
+            #if new_node will start a new line
+            if idx1 == 9 or idx1 == 19:
+                initial_position = node1.get_center() + DOWN * 3
+                new_node.move_to(initial_position)
+
+                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+
+                self.play(
+                    FadeIn(new_node),
+                    FadeIn(node1.next_arrow),
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
+                
+                shifts = []
+
+                # Nodes shift left by 1 unit + their arrows
+                for node in nodes: 
+                    shifts.append(node.animate.shift(UP * 1.5))
+                    if node.next_arrow:
+                        shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                 
+                shifts.append(new_node.animate.shift(UP * 1.5))
+
+                self.play(
+                    *shifts 
+                )
+            #if tail is odd row
+            elif node1.row % 2 != 0:
                 initial_position = node1.get_left() + DOWN * 1.55
                 new_node.move_to(initial_position)
 
@@ -197,6 +223,7 @@ class LinkedListScene(Scene):
                     new_node.animate.move_to(node1.get_center() + LEFT * 2),
                     Transform(node1.next_arrow, transformed_arrow)
                 )
+            #if tail is even row
             else:
                 initial_position = node1.get_right() + DOWN * 1.55
                 new_node.move_to(initial_position)
@@ -220,6 +247,7 @@ class LinkedListScene(Scene):
                     new_node.animate.move_to(node1.get_center() + RIGHT * 2),
                     Transform(node1.next_arrow, transformed_arrow)
                 )
+            
             if len(nodes) < 10:
                 # Shift simultaneously before manipulation
                 shifts = []
@@ -231,11 +259,10 @@ class LinkedListScene(Scene):
                         shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                  
                 shifts.append(new_node.animate.shift(LEFT * 1))
-                
+
                 self.play(
                     *shifts 
                 )
-
 
     def insert_node_row(self, nodes, idx1, idx2, new_value):
             # Find the reference nodes for insertion + color code them
