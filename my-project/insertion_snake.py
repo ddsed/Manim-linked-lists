@@ -132,7 +132,6 @@ class LinkedListScene(Scene):
             initial_position = node2.get_left() + UP * 1.55
             new_node.move_to(initial_position)
 
-            # new_node.next_arrow = new_node.set_next(node2, 0, 1)
             new_node.next_arrow = CurvedArrow(
                 start_point=new_node.get_bottom() + DOWN * 0.1, 
                 end_point=node2.get_left() + LEFT * 0.1,
@@ -206,62 +205,63 @@ class LinkedListScene(Scene):
                     *shifts 
                 )
             #if tail is odd row
-            elif node1.row % 2 != 0:
-                initial_position = node1.get_left() + DOWN * 1.55
-                new_node.move_to(initial_position)
-
-                node1.next_arrow = CurvedArrow(
-                    start_point=node1.get_bottom() + DOWN * 0.1, 
-                    end_point=new_node.get_right() + RIGHT * 0.1,
-                    angle=-TAU/4, 
-                    tip_length=0.2
-                )
-
-                transformed_arrow = Arrow(
-                    start=node1.get_left(), 
-                    end=new_node.get_right() + LEFT * 1.5 + UP * 1.55,
-                    tip_length=0.2,
-                    buff=0.1
-                )
-
-                self.play(
-                    FadeIn(new_node),
-                    FadeIn(node1.next_arrow),
-                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
-                )
-                self.play(
-                    new_node.animate.move_to(node1.get_center() + LEFT * 2),
-                    Transform(node1.next_arrow, transformed_arrow)
-                )
-            #if tail is even row
             else:
-                initial_position = node1.get_right() + DOWN * 1.55
-                new_node.move_to(initial_position)
+                if node1.row % 2 != 0:
+                    initial_position = node1.get_left() + DOWN * 1.55
+                    new_node.move_to(initial_position)
 
-                node1.next_arrow = CurvedArrow(
-                    start_point=node1.get_bottom() + DOWN * 0.1, 
-                    end_point=new_node.get_left() + LEFT * 0.1,
-                    tip_length=0.2
-                )
+                    node1.next_arrow = CurvedArrow(
+                        start_point=node1.get_bottom() + DOWN * 0.1, 
+                        end_point=new_node.get_right() + RIGHT * 0.1,
+                        angle=-TAU/4, 
+                        tip_length=0.2
+                    )
 
-                transformed_arrow = Arrow(
-                    start=node1.get_right(), 
-                    end=new_node.get_left() + RIGHT * 1.5 + UP * 1.55,
-                    tip_length=0.2,
-                    buff=0.1
-                )
+                    transformed_arrow = Arrow(
+                        start=node1.get_left(), 
+                        end=new_node.get_right() + LEFT * 1.5 + UP * 1.55,
+                        tip_length=0.2,
+                        buff=0.1
+                    )
 
-                self.play(
-                    FadeIn(new_node),
-                    FadeIn(node1.next_arrow),
-                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
-                )
+                    self.play(
+                        FadeIn(new_node),
+                        FadeIn(node1.next_arrow),
+                        new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                    )
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
+                #if tail is even row
+                else:
+                    initial_position = node1.get_right() + DOWN * 1.55
+                    new_node.move_to(initial_position)
 
-                self.play(
-                    new_node.animate.move_to(node1.get_center() + RIGHT * 2),
-                    Transform(node1.next_arrow, transformed_arrow)
-                )
-            
+                    node1.next_arrow = CurvedArrow(
+                        start_point=node1.get_bottom() + DOWN * 0.1, 
+                        end_point=new_node.get_left() + LEFT * 0.1,
+                        tip_length=0.2
+                    )
+
+                    transformed_arrow = Arrow(
+                        start=node1.get_right(), 
+                        end=new_node.get_left() + RIGHT * 1.5 + UP * 1.55,
+                        tip_length=0.2,
+                        buff=0.1
+                    )
+
+                    self.play(
+                        FadeIn(new_node),
+                        FadeIn(node1.next_arrow),
+                        new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                    )
+
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
+                
             if len(nodes) < 10:
                 # Shift simultaneously before manipulation
                 shifts = []
