@@ -134,8 +134,8 @@ class LinkedListScene(Scene):
 
             # new_node.next_arrow = new_node.set_next(node2, 0, 1)
             new_node.next_arrow = CurvedArrow(
-                start_point=new_node.get_bottom(), 
-                end_point=node2.get_left(),
+                start_point=new_node.get_bottom() + DOWN * 0.1, 
+                end_point=node2.get_left() + LEFT * 0.1,
                 tip_length=0.2
             )
 
@@ -210,7 +210,12 @@ class LinkedListScene(Scene):
                 initial_position = node1.get_left() + DOWN * 1.55
                 new_node.move_to(initial_position)
 
-                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+                node1.next_arrow = CurvedArrow(
+                    start_point=node1.get_bottom() + DOWN * 0.1, 
+                    end_point=new_node.get_right() + RIGHT * 0.1,
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
 
                 transformed_arrow = Arrow(
                     start=node1.get_left(), 
@@ -233,7 +238,11 @@ class LinkedListScene(Scene):
                 initial_position = node1.get_right() + DOWN * 1.55
                 new_node.move_to(initial_position)
 
-                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+                node1.next_arrow = CurvedArrow(
+                    start_point=node1.get_bottom() + DOWN * 0.1, 
+                    end_point=new_node.get_left() + LEFT * 0.1,
+                    tip_length=0.2
+                )
 
                 transformed_arrow = Arrow(
                     start=node1.get_right(), 
