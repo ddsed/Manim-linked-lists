@@ -89,14 +89,24 @@ class LinkedListScene(Scene):
 
         # Add nodes and create arrows
         for i, node in enumerate(nodes):
-            self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
-            self.play(FadeOut(textfuncadd, run_time=0.3))
-            if i > 0:
-                row1 = (i - 1) // 10
-                row2 = i // 10
-                arrow = nodes[i - 1].set_next(node, row1, row2)
-                self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
-                self.play(FadeOut(textfuncarrow, run_time=0.3))
+            if i < 3:
+                # Full animation for the first three nodes
+                self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
+                self.play(FadeOut(textfuncadd, run_time=0.3))
+                if i > 0:
+                    row1 = (i - 1) // 10
+                    row2 = i // 10
+                    arrow = nodes[i - 1].set_next(node, row1, row2)
+                    self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
+                    self.play(FadeOut(textfuncarrow, run_time=0.3))
+            else:
+                # Quick display for the rest of the nodes
+                self.play(FadeIn(node, run_time=0.1))
+                if i > 0:
+                    row1 = (i - 1) // 10
+                    row2 = i // 10
+                    arrow = nodes[i - 1].set_next(node, row1, row2)
+                    self.play(FadeIn(arrow, run_time=0.1))
 
         self.wait(1)
         # Insert a new node

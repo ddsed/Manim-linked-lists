@@ -39,7 +39,7 @@ class LinkedListScene(Scene):
 
         # Get input from user
         node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
-        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0; If you want to insert to the tail - enter the index of the last node twice: ").split())
+        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
         new_letter = input("Enter the new node letter: ")
 
         # Constants
@@ -89,16 +89,26 @@ class LinkedListScene(Scene):
 
         # Add nodes and create arrows
         for i, node in enumerate(nodes):
-            self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
-            self.play(FadeOut(textfuncadd, run_time=0.3))
-            if i > 0:
-                row1 = (i - 1) // 10
-                row2 = i // 10
-                arrow = nodes[i - 1].set_next(node, row1, row2)
-                self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
-                self.play(FadeOut(textfuncarrow, run_time=0.3))
+            if i < 3:
+                # Full animation for the first three nodes
+                self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
+                self.play(FadeOut(textfuncadd, run_time=0.3))
+                if i > 0:
+                    row1 = (i - 1) // 10
+                    row2 = i // 10
+                    arrow = nodes[i - 1].set_next(node, row1, row2)
+                    self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
+                    self.play(FadeOut(textfuncarrow, run_time=0.3))
+            else:
+                # Quick display for the rest of the nodes
+                self.play(FadeIn(node, run_time=0.1))
+                if i > 0:
+                    row1 = (i - 1) // 10
+                    row2 = i // 10
+                    arrow = nodes[i - 1].set_next(node, row1, row2)
+                    self.play(FadeIn(arrow, run_time=0.1))
 
-        self.wait(1)
+        self.wait(0.5)
         # Insert a new node
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
@@ -557,7 +567,9 @@ def shift_nodes_to_the_right(nodes, idx2):
 
         # Shift node_i to the position of node_i_next
         if i == len(nodes) - 1:
-            if node_i.row % 2 != 0:
+            if i == 9 or i == 19:
+                shifts.append(node_i.animate.shift(DOWN * 3))
+            elif node_i.row % 2 != 0:
                 shifts.append(node_i.animate.shift(LEFT * 2))
             else:
                 shifts.append(node_i.animate.shift(RIGHT * 2))
