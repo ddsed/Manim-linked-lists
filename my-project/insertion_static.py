@@ -39,7 +39,7 @@ class LinkedListScene(Scene):
 
         # Get input from user
         node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
-        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0; If you want to insert to the tail - enter the index of the last node twice: ").split())
+        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
         new_letter = input("Enter the new node letter: ")
 
         # Constants
@@ -259,7 +259,10 @@ class LinkedListScene(Scene):
 
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
-            initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
+            if idx1 == 10 or idx1 == 20:
+                initial_position = (node1.get_right() + node2.get_left()) / 2 + DOWN * 1.5
+            else:
+                initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
             
             new_node.move_to(initial_position)
 
@@ -271,31 +274,62 @@ class LinkedListScene(Scene):
 
             # Create arrows to and from the new node for even rows
             if node1.row % 2 == 0:
-                arrow_to_new = Arrow(
-                    start=node1.get_top(), 
-                    end=new_node.get_left(),
-                    tip_length=0.2,
-                    buff=0.1 
-                )
-                new_node.next_arrow = Arrow(
-                    start=new_node.get_right(), 
-                    end=node2.get_top(),
-                    tip_length=0.2,
-                    buff=0.1 
-                )
+                # for node right after the row switch
+                if idx1 == 20:
+                    arrow_to_new = Arrow(
+                        start=node1.get_bottom(), 
+                        end=new_node.get_left(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                    new_node.next_arrow = Arrow(
+                        start=new_node.get_right(), 
+                        end=node2.get_bottom(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                else:
+                    arrow_to_new = Arrow(
+                        start=node1.get_top(), 
+                        end=new_node.get_left(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                    new_node.next_arrow = Arrow(
+                        start=new_node.get_right(), 
+                        end=node2.get_top(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+            # for odd rows
             else:
-                arrow_to_new = Arrow(
-                    start=node1.get_top(), 
-                    end=new_node.get_right(),
-                    tip_length=0.2,
-                    buff=0.1 
-                )
-                new_node.next_arrow = Arrow(
-                    start=new_node.get_left(), 
-                    end=node2.get_top(),
-                    tip_length=0.2,
-                    buff=0.1 
-                )
+                # for node right after the row switch
+                if idx1 == 10:
+                    arrow_to_new = Arrow(
+                        start=node1.get_bottom(), 
+                        end=new_node.get_right(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                    new_node.next_arrow = Arrow(
+                        start=new_node.get_left(), 
+                        end=node2.get_bottom(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                else:
+                    arrow_to_new = Arrow(
+                        start=node1.get_top(), 
+                        end=new_node.get_right(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
+                    new_node.next_arrow = Arrow(
+                        start=new_node.get_left(), 
+                        end=node2.get_top(),
+                        tip_length=0.2,
+                        buff=0.1 
+                    )
 
             self.play(
                 Transform(node1.next_arrow, arrow_to_new), 
