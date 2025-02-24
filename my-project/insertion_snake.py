@@ -132,7 +132,12 @@ class LinkedListScene(Scene):
             initial_position = node2.get_left() + UP * 1.55
             new_node.move_to(initial_position)
 
-            new_node.next_arrow = new_node.set_next(node2, 0, 1)
+            # new_node.next_arrow = new_node.set_next(node2, 0, 1)
+            new_node.next_arrow = CurvedArrow(
+                start_point=new_node.get_bottom(), 
+                end_point=node2.get_left(),
+                tip_length=0.2
+            )
 
             transformed_arrow = Arrow(
                 start=new_node.get_right() + DOWN * 1.55 + RIGHT * 0.5, 
@@ -186,7 +191,7 @@ class LinkedListScene(Scene):
                     FadeIn(node1.next_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
-                
+
                 shifts = []
 
                 # Nodes shift left by 1 unit + their arrows
@@ -448,7 +453,7 @@ class LinkedListScene(Scene):
         
         # Create the new node to insert
         new_node = LinkedListNodeBasic(new_value)
-        if node1 == 9:
+        if idx1 == 9:
             initial_position = (node1.get_bottom() + node2.get_top()) / 2 + LEFT * 1.5
         else:
             initial_position = (node1.get_bottom() + node2.get_top()) / 2 + RIGHT * 1.5
@@ -494,7 +499,7 @@ class LinkedListScene(Scene):
         node1.next_arrow.add_updater(update_arrow_to_new)
 
         # Arrows to new node
-        if node1 == 9:
+        if idx1 == 9:
             arrow_from_new = Arrow(
                 start=node2.get_left(), 
                 end=node2.get_right() + LEFT * 2,
