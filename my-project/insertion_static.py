@@ -28,7 +28,6 @@ class LinkedListNodeBasic(VGroup):
         self.next_arrow = Arrow(start, end, buff=0.1, tip_length=0.2, color=WHITE)
         return self.next_arrow
 
-
 class LinkedListScene(Scene):
     def construct(self):
         # Show animation without cropping
@@ -123,7 +122,7 @@ class LinkedListScene(Scene):
         # Find the reference nodes for insertion + color code them
             node2 = nodes[idx2]     
 
-            textfunc = Text(f"insert({node2.text.text})", font_size = 36)
+            textfunc = Text(f"insert() to head position", font_size = 36)
             textfunc.next_to(nodes[0], UP, buff=0.5)
             textfunc.align_to(nodes[0], LEFT)
             self.play(
@@ -159,7 +158,7 @@ class LinkedListScene(Scene):
         # Find the reference nodes for insertion + color code them
             node1 = nodes[idx1]     
 
-            textfunc = Text(f"insert({node1.text.text})", font_size = 36)
+            textfunc = Text(f"insert() to tail position", font_size = 36)
             textfunc.next_to(nodes[0], UP, buff=0.5)
             textfunc.align_to(nodes[0], LEFT)
             self.play(
