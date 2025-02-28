@@ -12,8 +12,8 @@ class LinkedListVGroup(VGroup):
 
         self.construct_list()
 
+    # Positions the nodes in a structured grid layout
     def construct_list(self):
-        """Positions the nodes in a structured grid layout."""
         for i, node in enumerate(self.nodes):
             row = i // 10
             col = i % 10
@@ -28,9 +28,8 @@ class LinkedListVGroup(VGroup):
             self.add(node)
 
         self.center_list()
-
+    # Centers the entire linked list structure on the screen.
     def center_list(self):
-        """Centers the entire linked list structure on the screen."""
         if not self.nodes:
             return
         

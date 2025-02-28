@@ -31,7 +31,7 @@ class DualScene(Scene):
         self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter)
         self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
     
-    # Handles the animation for showing nodes.
+    # Handles the animation for showing nodes
     def animate_nodes(self, nodes_left, nodes_right):
         # Text to show
         textfuncadd = Text("add()", font_size=66)
