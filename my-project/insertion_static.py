@@ -28,7 +28,7 @@ class LinkedListNodeBasic(VGroup):
         self.next_arrow = Arrow(start, end, buff=0.1, tip_length=0.2, color=WHITE)
         return self.next_arrow
 
-class LinkedListScene(Scene):
+class LinkedListStaticScene(Scene):
     def construct(self):
         # Show animation without cropping
         scale_factor = 1.5
@@ -108,7 +108,12 @@ class LinkedListScene(Scene):
                     self.play(FadeIn(arrow, run_time=0.1))
 
         self.wait(1)
-        # Insert a new node
+
+        # Call the refactored insert function
+        self.insert_node(nodes, insert_idx1, insert_idx2, new_letter)
+        
+    def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter):
+        """Determines the correct method for inserting a node and calls it."""
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
