@@ -34,13 +34,13 @@ class DualScene(Scene):
     # Handles the animation for showing nodes.
     def animate_nodes(self, nodes_left, nodes_right):
         # Text to show
-        textfuncadd = Text("add()", font_size=36)
-        textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=36)
+        textfuncadd = Text("add()", font_size=66)
+        textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=66)
 
-        textfuncadd.next_to(nodes_left[0], UP, buff=0.5)
+        # Positioning the text at the top of the screen
+        textfuncadd.next_to(nodes_left[0], UP, buff=2)
         textfuncadd.align_to(nodes_left[0], LEFT)
-        
-        textfuncarrow.next_to(nodes_left[0], UP, buff=0.5)
+        textfuncarrow.next_to(nodes_left[0], UP, buff=2)
         textfuncarrow.align_to(nodes_left[0], LEFT)
 
         # Loop through both left and right lists at the same time (since the length is the same)
