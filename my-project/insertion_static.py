@@ -14,79 +14,74 @@ class LinkedListStaticScene(Scene):
         insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
         new_letter = input("Enter the new node letter: ")
 
-        # Constants
-        NODE_SPACING = 2  # Horizontal spacing between nodes
-        ROW_SPACING = 3   # Vertical spacing between rows
+        # Create and position nodes
+        nodes = self.create_and_position_nodes(node_values)
 
-        # Create nodes
-        nodes = [LinkedListNodeBasic(value, row=i//10, col=i%10) for i, value in enumerate(node_values)]
+        # Center the structure
+        self.center_nodes(nodes)
 
-        # Place nodes in the correct position
-        for i, node in enumerate(nodes):
-            row = i // 10  # Determine the row index
-            col = i % 10   # Determine the column index within the row
-
-            if row % 2 == 0:  # Even row (left to right)
-                x_pos = RIGHT * col * NODE_SPACING
-            else:  # Odd row (right to left)
-                x_pos = RIGHT * (9 - col) * NODE_SPACING
-
-            y_pos = DOWN * row * ROW_SPACING  # Move downward for each new row
-            node.move_to(x_pos + y_pos)  # Set final position
-
-        # Center the whole structure
-        if nodes:
-            leftmost = min(node.get_left()[0] for node in nodes)  # X-coordinate of the leftmost node
-            rightmost = max(node.get_right()[0] for node in nodes)  # X-coordinate of the rightmost node
-            topmost = max(node.get_top()[1] for node in nodes)  # Y-coordinate of the topmost node
-            bottommost = min(node.get_bottom()[1] for node in nodes)  # Y-coordinate of the bottommost node
-
-            # Compute the center of the entire structure
-            structure_center = np.array([(leftmost + rightmost) / 2, (topmost + bottommost) / 2, 0])
-
-            # Compute shift vector to move structure center to ORIGIN
-            shift_amount = ORIGIN - structure_center
-
-            # Shift accordingly
-            for node in nodes:
-                node.shift(shift_amount)
-
-        # Texts for code commands
-        textfuncadd = Text("add()", font_size = 36) 
-        textfuncadd.next_to(nodes[0], UP, buff=0.5)
-        textfuncadd.align_to(nodes[0], LEFT)
-        textfuncarrow = Text("nodes[i - 1].set_next(node[i])", font_size = 36) 
-        textfuncarrow.next_to(nodes[0], UP, buff=0.5)
-        textfuncarrow.align_to(nodes[0], LEFT)
-
-        # Add nodes and create arrows
-        for i, node in enumerate(nodes):
-            if i < 3:
-                # Full animation for the first three nodes
-                self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
-                self.play(FadeOut(textfuncadd, run_time=0.3))
-                if i > 0:
-                    row1 = (i - 1) // 10
-                    row2 = i // 10
-                    arrow = nodes[i - 1].set_next(node, row1, row2)
-                    self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
-                    self.play(FadeOut(textfuncarrow, run_time=0.3))
-            else:
-                # Quick display for the rest of the nodes
-                self.play(FadeIn(node, run_time=0.1))
-                if i > 0:
-                    row1 = (i - 1) // 10
-                    row2 = i // 10
-                    arrow = nodes[i - 1].set_next(node, row1, row2)
-                    self.play(FadeIn(arrow, run_time=0.1))
+        # Animate node appearance
+        self.animate_nodes(nodes)
 
         self.wait(1)
 
-        # Call the refactored insert function
+        # Insert function
         self.insert_node(nodes, insert_idx1, insert_idx2, new_letter)
+
+    def create_and_position_nodes(self, node_values):
+        NODE_SPACING = 2
+        ROW_SPACING = 3
+        
+        nodes = [LinkedListNodeBasic(value, row=i//10, col=i%10) for i, value in enumerate(node_values)]
+        
+        for i, node in enumerate(nodes):
+            row = i // 10
+            col = i % 10
+            
+            x_pos = RIGHT * col * NODE_SPACING if row % 2 == 0 else RIGHT * (9 - col) * NODE_SPACING
+            y_pos = DOWN * row * ROW_SPACING
+            
+            node.move_to(x_pos + y_pos)
+        
+        return nodes
+
+    def center_nodes(self, nodes):
+        if not nodes:
+            return
+        
+        leftmost = min(node.get_left()[0] for node in nodes)
+        rightmost = max(node.get_right()[0] for node in nodes)
+        topmost = max(node.get_top()[1] for node in nodes)
+        bottommost = min(node.get_bottom()[1] for node in nodes)
+
+        structure_center = np.array([(leftmost + rightmost) / 2, (topmost + bottommost) / 2, 0])
+        shift_amount = ORIGIN - structure_center
+
+        for node in nodes:
+            node.shift(shift_amount)
+
+    def animate_nodes(self, nodes):
+        textfuncadd = Text("add()", font_size=36)
+        textfuncarrow = Text("nodes[i - 1].set_next(node[i])", font_size=36)
+        textfuncadd.next_to(nodes[0], UP, buff=0.5).align_to(nodes[0], LEFT)
+        textfuncarrow.next_to(nodes[0], UP, buff=0.5).align_to(nodes[0], LEFT)
+
+        for i, node in enumerate(nodes):
+            if i < 3:
+                self.play(FadeIn(node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
+                self.play(FadeOut(textfuncadd, run_time=0.3))
+                if i > 0:
+                    arrow = nodes[i - 1].set_next(node, (i - 1) // 10, i // 10)
+                    self.play(FadeIn(arrow, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
+                    self.play(FadeOut(textfuncarrow, run_time=0.3))
+            else:
+                self.play(FadeIn(node, run_time=0.1))
+                if i > 0:
+                    arrow = nodes[i - 1].set_next(node, (i - 1) // 10, i // 10)
+                    self.play(FadeIn(arrow, run_time=0.1))
         
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter):
-        """Determines the correct method for inserting a node and calls it."""
+        #Determines the correct method for inserting a node and calls it.
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
