@@ -97,6 +97,7 @@ class DualScene(Scene):
         else:
             self.insert_node_row_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
 
+    # Handles static head insertion 
     def insert_node_head(self, linked_list, idx2, new_value):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list.nodes[idx2]     
@@ -133,6 +134,7 @@ class DualScene(Scene):
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
 
+    # Handles shifting head insertion 
     def insert_node_head_shift(self, linked_list_shift, idx2, new_value):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list_shift.nodes[idx2]     
@@ -199,6 +201,7 @@ class DualScene(Scene):
                     *shifts 
                 )
 
+    # Handles static tail insertion 
     def insert_node_tail(self, linked_list, idx1, new_value):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list.nodes[idx1]     
@@ -281,6 +284,7 @@ class DualScene(Scene):
                     *shifts 
                 )
     
+    # Handles shifting tail insertion
     def insert_node_tail_shift(self, linked_list_shift, idx1, new_value):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list_shift.nodes[idx1]     
@@ -401,6 +405,7 @@ class DualScene(Scene):
                     *shifts 
                 )
 
+    # Handles static basic insertion
     def insert_node_row(self, linked_list, idx1, idx2, new_value):
             # Find the reference nodes for insertion + color code them
             node1 = linked_list.nodes[idx1]
@@ -500,7 +505,9 @@ class DualScene(Scene):
                 FadeIn(new_node.next_arrow),
                 run_time=0.8
             )
+     # Handles shifting tail insertion
     
+    # Handles shifting basic insertion
     def insert_node_row_shift(self, linked_list_shift, idx1, idx2, new_value):
             # Find the reference nodes for insertion + color code them
             node1 = linked_list_shift.nodes[idx1]
@@ -659,6 +666,7 @@ class DualScene(Scene):
             new_node.next_arrow.remove_updater(update_arrow_from_new)
             node1.next_arrow.remove_updater(update_arrow_to_new)
 
+    # Handles static insertion in between lines
     def insert_node_inbetween_lines(self, linked_list, idx1, idx2, new_value):
         # Find the reference nodes for insertion + color code them
         node1 = linked_list.nodes[idx1]
@@ -705,6 +713,7 @@ class DualScene(Scene):
         new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
         self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
+    # Handles shifting insertion in between lines
     def insert_node_inbetween_lines_shift(self, linked_list_shift, idx1, idx2, new_value):
         # Find the reference nodes for insertion + color code them
         node1 = linked_list_shift.nodes[idx1]
@@ -817,6 +826,7 @@ class DualScene(Scene):
             run_time=0.8
         )
 
+# Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):
     shifts = []
 
