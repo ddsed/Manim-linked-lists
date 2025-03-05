@@ -646,52 +646,55 @@ class LinkedListShiftScene(MovingCameraScene):
             Transform(node1_closeup.next_arrow, arrow_to)
         )
 
+        if idx1 == 9 or idx1 == 19:
+            pass
         # Shifting for even rows
-        if node1.row % 2 == 0:
-            new_arrow_to = Arrow(
-                start=arrow_to.get_start() + LEFT * 0.3 + [0, -0.1, 0], 
-                end=arrow_to.get_end() + DOWN * 0.6 + RIGHT * 0.1,
-                tip_length=0.2,
-                buff=0.1 
-            )
-
-            new_arrow_from = Arrow(
-                start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + LEFT * 0.1, 
-                end=node_closeup.next_arrow.get_end() + RIGHT * 0.2,
-                tip_length=0.2,
-                buff=0.1 
-            )
-
-            self.play(
-                node_closeup.animate.shift(DOWN * 0.6),
-                node1_closeup.animate.shift(LEFT * 0.1),
-                node2_closeup.animate.shift(RIGHT * 0.1),
-                Transform(node1_closeup.next_arrow, new_arrow_to),
-                Transform(node_closeup.next_arrow, new_arrow_from)
-            )
-        # Shifting for odd rows
         else:
-            new_arrow_to = Arrow(
-                start=arrow_to.get_start() + RIGHT * 0.3 + [0, -0.1, 0], 
-                end=arrow_to.get_end() + DOWN * 0.6 + LEFT * 0.1,
-                tip_length=0.2,
-                buff=0.1 
-            )
+            if node1.row % 2 == 0:
+                new_arrow_to = Arrow(
+                    start=arrow_to.get_start() + LEFT * 0.3 + [0, -0.1, 0], 
+                    end=arrow_to.get_end() + DOWN * 0.6 + RIGHT * 0.1,
+                    tip_length=0.2,
+                    buff=0.1 
+                )
 
-            new_arrow_from = Arrow(
-                start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + RIGHT * 0.1, 
-                end=node_closeup.next_arrow.get_end() + LEFT * 0.2,
-                tip_length=0.2,
-                buff=0.1 
-            )
+                new_arrow_from = Arrow(
+                    start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + LEFT * 0.1, 
+                    end=node_closeup.next_arrow.get_end() + RIGHT * 0.2,
+                    tip_length=0.2,
+                    buff=0.1 
+                )
 
-            self.play(
-                node_closeup.animate.shift(DOWN * 0.6),
-                node1_closeup.animate.shift(RIGHT * 0.1),
-                node2_closeup.animate.shift(LEFT * 0.1),
-                Transform(node1_closeup.next_arrow, new_arrow_to),
-                Transform(node_closeup.next_arrow, new_arrow_from)
-            )
+                self.play(
+                    node_closeup.animate.shift(DOWN * 0.6),
+                    node1_closeup.animate.shift(LEFT * 0.1),
+                    node2_closeup.animate.shift(RIGHT * 0.1),
+                    Transform(node1_closeup.next_arrow, new_arrow_to),
+                    Transform(node_closeup.next_arrow, new_arrow_from)
+                )
+            # Shifting for odd rows
+            else:
+                new_arrow_to = Arrow(
+                    start=arrow_to.get_start() + RIGHT * 0.3 + [0, -0.1, 0], 
+                    end=arrow_to.get_end() + DOWN * 0.6 + LEFT * 0.1,
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+
+                new_arrow_from = Arrow(
+                    start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + RIGHT * 0.1, 
+                    end=node_closeup.next_arrow.get_end() + LEFT * 0.2,
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+
+                self.play(
+                    node_closeup.animate.shift(DOWN * 0.6),
+                    node1_closeup.animate.shift(RIGHT * 0.1),
+                    node2_closeup.animate.shift(LEFT * 0.1),
+                    Transform(node1_closeup.next_arrow, new_arrow_to),
+                    Transform(node_closeup.next_arrow, new_arrow_from)
+                )
 
         self.wait(1)
 
