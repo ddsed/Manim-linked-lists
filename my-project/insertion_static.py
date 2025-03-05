@@ -536,7 +536,12 @@ class LinkedListStaticScene(MovingCameraScene):
         # Positioning the ingoing arrow to node2
         if idx1 == 10 or idx1 == 20:
             node1_closeup.shift(position + UP * 4)
-            node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, 0, 1)
+            node1_closeup.next_arrow = Arrow(
+                start=node1_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node2_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.1 
+            )
         else:
             if node1.row % 2 == 0:
                 node1_closeup.shift(position + LEFT * 4)
