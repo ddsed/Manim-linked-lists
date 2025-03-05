@@ -521,7 +521,6 @@ class LinkedListStaticScene(MovingCameraScene):
         background = Rectangle(
             width=self.camera.frame.get_width(),  
             height=self.camera.frame.get_height(),
-
         )
         background.set_fill(BLACK, opacity=1)
         background.set_stroke(opacity=0)

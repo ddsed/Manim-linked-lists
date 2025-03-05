@@ -150,7 +150,7 @@ class LinkedListScene(Scene):
 
         # Update arrows to new node
         arrow_to_new_updated = Arrow(
-            start= node1.get_bottom() + [0, 0.5, 0], 
+            start=node1.get_bottom() + [0, 0.5, 0], 
             end=node2.get_left() + [-4, 0.5, 0],
             tip_length=0.2,
             buff=0.1 
