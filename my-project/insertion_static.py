@@ -526,16 +526,24 @@ class LinkedListStaticScene(MovingCameraScene):
         background.set_stroke(opacity=0)
         node1_closeup = LinkedListNodeCloseup(node1.text.text, node1.row, node1.col).scale(0.6)
         node2_closeup = LinkedListNodeCloseup(node1.text.text, node1.row, node1.col).scale(0.6)
-        if node1.row % 2 == 0:
-            node1_closeup.shift(position + LEFT * 4)
-        else:
-            node1_closeup.shift(position + RIGHT * 4)
         
+        # Positioning node2
         if idx1 == 9 or idx1 == 19:
             node2_closeup.shift(position + UP * 0.7)
         else:
             node2_closeup.shift(position)
-        node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
+
+        # Positioning the ingoing arrow to node2
+        if idx1 == 10 or idx1 == 20:
+            node1_closeup.shift(position + UP * 4)
+            node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, 0, 1)
+        else:
+            if node1.row % 2 == 0:
+                node1_closeup.shift(position + LEFT * 4)
+            else:
+                node1_closeup.shift(position + RIGHT * 4)
+            
+            node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
         
         node_closeup = LinkedListNodeCloseup(new_node.text.text).scale(0.6)
         if idx1 == 9 or idx1 == 19:

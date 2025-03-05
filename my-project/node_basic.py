@@ -20,10 +20,7 @@ class LinkedListNodeBasic(VGroup):
             else:  # Odd row (Right to Left)
                 start, end = self.get_left(), next_node.get_right()
         else:  # Connecting different rows
-            if row1 % 2 == 0:  # Moving down from even row (Right to Left next)
-                start, end = self.get_bottom(), next_node.get_top()
-            else:  # Moving down from odd row (Left to Right next)
-                start, end = self.get_bottom(), next_node.get_top()
+            start, end = self.get_bottom(), next_node.get_top()
 
         self.next_arrow = Arrow(start, end, buff=0.1, tip_length=0.2, color=WHITE)
         return self.next_arrow

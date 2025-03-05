@@ -160,31 +160,97 @@ class LinkedListShiftScene(MovingCameraScene):
             self.zoom_in_head(node2, new_node)
 
     def insert_node_tail(self, nodes, idx1, new_value):
-        # Find the reference nodes for insertion + color code them
-            node1 = nodes[idx1]     
+    # Find the reference nodes for insertion + color code them
+        node1 = nodes[idx1]     
 
-            textfunc = Text(f"insert() to tail position", font_size = 36)
-            textfunc.next_to(nodes[0], UP, buff=0.5)
-            textfunc.align_to(nodes[0], LEFT)
+        textfunc = Text(f"insert() to tail position", font_size = 36)
+        textfunc.next_to(nodes[0], UP, buff=0.5)
+        textfunc.align_to(nodes[0], LEFT)
+        self.play(
+            node1.box.animate.set_fill(GREEN, opacity=0.35),
+            FadeIn(textfunc)
+        )
+
+        self.play(FadeOut(textfunc))
+
+        if not node1:
+            print("Error: Specified nodes not found in the list.")
+            return
+        
+        new_node = LinkedListNodeBasic(new_value)
+
+        #if new_node will start a new line
+        if idx1 == 9 or idx1 == 19:
+            initial_position = node1.get_center() + DOWN * 3
+            new_node.move_to(initial_position)
+
+            node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+
             self.play(
-                node1.box.animate.set_fill(GREEN, opacity=0.35),
-                FadeIn(textfunc)
+                FadeIn(new_node),
+                FadeIn(node1.next_arrow),
+                new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
 
-            self.play(FadeOut(textfunc))
+            shifts = []
 
-            if not node1:
-                print("Error: Specified nodes not found in the list.")
-                return
-            
-            new_node = LinkedListNodeBasic(new_value)
+            # Nodes shift left by 1 unit + their arrows
+            for node in nodes: 
+                shifts.append(node.animate.shift(UP * 1.5))
+                if node.next_arrow:
+                    shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                
+            shifts.append(new_node.animate.shift(UP * 1.5))
 
-            #if new_node will start a new line
-            if idx1 == 9 or idx1 == 19:
-                initial_position = node1.get_center() + DOWN * 3
+            self.play(
+                *shifts 
+            )
+        #if tail is odd row
+        else:
+            if node1.row % 2 != 0:
+                initial_position = node1.get_left() + DOWN * 1.55
                 new_node.move_to(initial_position)
 
-                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+                node1.next_arrow = CurvedArrow(
+                    start_point=node1.get_bottom() + DOWN * 0.1, 
+                    end_point=new_node.get_right() + RIGHT * 0.1,
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
+
+                transformed_arrow = Arrow(
+                    start=node1.get_left(), 
+                    end=new_node.get_right() + LEFT * 1.5 + UP * 1.55,
+                    tip_length=0.2,
+                    buff=0.1
+                )
+
+                self.play(
+                    FadeIn(new_node),
+                    FadeIn(node1.next_arrow),
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
+                self.play(
+                    new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                    Transform(node1.next_arrow, transformed_arrow)
+                )
+            #if tail is even row
+            else:
+                initial_position = node1.get_right() + DOWN * 1.55
+                new_node.move_to(initial_position)
+
+                node1.next_arrow = CurvedArrow(
+                    start_point=node1.get_bottom() + DOWN * 0.1, 
+                    end_point=new_node.get_left() + LEFT * 0.1,
+                    tip_length=0.2
+                )
+
+                transformed_arrow = Arrow(
+                    start=node1.get_right(), 
+                    end=new_node.get_left() + RIGHT * 1.5 + UP * 1.55,
+                    tip_length=0.2,
+                    buff=0.1
+                )
 
                 self.play(
                     FadeIn(new_node),
@@ -192,92 +258,28 @@ class LinkedListShiftScene(MovingCameraScene):
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
 
-                shifts = []
-
-                # Nodes shift left by 1 unit + their arrows
-                for node in nodes: 
-                    shifts.append(node.animate.shift(UP * 1.5))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(UP * 1.5))
-                 
-                shifts.append(new_node.animate.shift(UP * 1.5))
-
                 self.play(
-                    *shifts 
+                    new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                    Transform(node1.next_arrow, transformed_arrow)
                 )
-            #if tail is odd row
-            else:
-                if node1.row % 2 != 0:
-                    initial_position = node1.get_left() + DOWN * 1.55
-                    new_node.move_to(initial_position)
+            
+        if len(nodes) < 10:
+            # Shift simultaneously before manipulation
+            shifts = []
 
-                    node1.next_arrow = CurvedArrow(
-                        start_point=node1.get_bottom() + DOWN * 0.1, 
-                        end_point=new_node.get_right() + RIGHT * 0.1,
-                        angle=-TAU/4, 
-                        tip_length=0.2
-                    )
-
-                    transformed_arrow = Arrow(
-                        start=node1.get_left(), 
-                        end=new_node.get_right() + LEFT * 1.5 + UP * 1.55,
-                        tip_length=0.2,
-                        buff=0.1
-                    )
-
-                    self.play(
-                        FadeIn(new_node),
-                        FadeIn(node1.next_arrow),
-                        new_node.box.animate.set_fill(GREEN_E, opacity=1)
-                    )
-                    self.play(
-                        new_node.animate.move_to(node1.get_center() + LEFT * 2),
-                        Transform(node1.next_arrow, transformed_arrow)
-                    )
-                #if tail is even row
-                else:
-                    initial_position = node1.get_right() + DOWN * 1.55
-                    new_node.move_to(initial_position)
-
-                    node1.next_arrow = CurvedArrow(
-                        start_point=node1.get_bottom() + DOWN * 0.1, 
-                        end_point=new_node.get_left() + LEFT * 0.1,
-                        tip_length=0.2
-                    )
-
-                    transformed_arrow = Arrow(
-                        start=node1.get_right(), 
-                        end=new_node.get_left() + RIGHT * 1.5 + UP * 1.55,
-                        tip_length=0.2,
-                        buff=0.1
-                    )
-
-                    self.play(
-                        FadeIn(new_node),
-                        FadeIn(node1.next_arrow),
-                        new_node.box.animate.set_fill(GREEN_E, opacity=1)
-                    )
-
-                    self.play(
-                        new_node.animate.move_to(node1.get_center() + RIGHT * 2),
-                        Transform(node1.next_arrow, transformed_arrow)
-                    )
+            # Nodes shift left by 1 unit + their arrows
+            for node in nodes: 
+                shifts.append(node.animate.shift(LEFT * 1))
+                if node.next_arrow:
+                    shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                 
-            if len(nodes) < 10:
-                # Shift simultaneously before manipulation
-                shifts = []
+            shifts.append(new_node.animate.shift(LEFT * 1))
 
-                # Nodes shift left by 1 unit + their arrows
-                for node in nodes: 
-                    shifts.append(node.animate.shift(LEFT * 1))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
-                 
-                shifts.append(new_node.animate.shift(LEFT * 1))
-
-                self.play(
-                    *shifts 
-                )
+            self.play(
+                *shifts 
+            )
+        
+        self.zoom_in_tail(idx1, node1, new_node)
 
     def insert_node_row(self, nodes, idx1, idx2, new_value):
             # Find the reference nodes for insertion + color code them
@@ -734,18 +736,27 @@ class LinkedListShiftScene(MovingCameraScene):
         background.set_stroke(opacity=0)
         node1_closeup = LinkedListNodeCloseup(node1.text.text, node1.row, node1.col).scale(0.6)
         node2_closeup = LinkedListNodeCloseup(node1.text.text, node1.row, node1.col).scale(0.6)
-        if node1.row % 2 == 0:
-            node1_closeup.shift(position + LEFT * 4)
-        else:
-            node1_closeup.shift(position + RIGHT * 4)
         
+        # Positioning node2
         if idx1 == 9 or idx1 == 19:
             node2_closeup.shift(position + UP * 0.7)
         else:
             node2_closeup.shift(position)
-        node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
+
+        # Positioning the ingoing arrow to node2
+        if idx1 == 10 or idx1 == 20:
+            node1_closeup.shift(position + UP * 4)
+            node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, 0, 1)
+        else:
+            if node1.row % 2 == 0:
+                node1_closeup.shift(position + LEFT * 4)
+            else:
+                node1_closeup.shift(position + RIGHT * 4)
+            
+            node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
         
         node_closeup = LinkedListNodeCloseup(new_node.text.text).scale(0.6)
+        
         if idx1 == 9 or idx1 == 19:
             node_closeup.shift(node2_closeup.get_bottom() + DOWN * 1)
             node2_closeup.next_arrow = Arrow(
@@ -775,6 +786,38 @@ class LinkedListShiftScene(MovingCameraScene):
         )
 
         self.play(FadeIn(node2_closeup.next_arrow))
+        
+        if idx1 == 9 or idx1 == 19:
+            pass
+        else:
+            if node1.row % 2 != 0:
+                arrow_to_new = Arrow(
+                    start=node2_closeup.next_arrow.get_start() + RIGHT * 1.3, 
+                    end=node2_closeup.next_arrow.get_end() + RIGHT * 0.7 + [0, 0.6, 0],
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+
+                self.play(
+                    node_closeup.animate.move_to(node2_closeup.get_left() + LEFT * 0.7),
+                    node2_closeup.animate.move_to(node2_closeup.get_center() + RIGHT * 1.2),
+                    node1_closeup.next_arrow.animate.shift(RIGHT * 1.2),
+                    Transform(node2_closeup.next_arrow, arrow_to_new)
+                )
+            else:
+                arrow_to_new = Arrow(
+                    start=node2_closeup.next_arrow.get_start() + LEFT * 1.3, 
+                    end=node2_closeup.next_arrow.get_end() + LEFT * 0.7 + [0, 0.6, 0],
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+
+                self.play(
+                    node_closeup.animate.move_to(node2_closeup.get_right() + RIGHT * 0.7),
+                    node2_closeup.animate.move_to(node2_closeup.get_center() + LEFT * 1.2),
+                    node1_closeup.next_arrow.animate.shift(LEFT * 1.2),
+                    Transform(node2_closeup.next_arrow, arrow_to_new)
+                )
 
         self.wait(1)
 
