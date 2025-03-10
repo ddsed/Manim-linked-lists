@@ -21,8 +21,8 @@ class DualScene(Scene):
         linked_list_shift = LinkedListVGroup(node_values)
 
         # Position the left linked list group to the left of the center
-        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4))
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4))  
+        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 4)
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 4)  
 
         # Animate node creation
         self.animate_nodes(linked_list.nodes, linked_list_shift.nodes)
@@ -38,9 +38,9 @@ class DualScene(Scene):
         textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=66)
 
         # Positioning the text at the top of the screen
-        textfuncadd.next_to(nodes_left[0], UP, buff=2)
+        textfuncadd.next_to(nodes_left[0], UP, buff=1)
         textfuncadd.align_to(nodes_left[0], LEFT)
-        textfuncarrow.next_to(nodes_left[0], UP, buff=2)
+        textfuncarrow.next_to(nodes_left[0], UP, buff=1)
         textfuncarrow.align_to(nodes_left[0], LEFT)
 
         # Loop through both left and right lists at the same time (since the length is the same)
@@ -102,7 +102,7 @@ class DualScene(Scene):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list.nodes[idx2]     
 
-            textfunc = Text(f"insert() to head position", font_size = 36)
+            textfunc = Text(f"insert() to head position", font_size = 42)
             textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list.nodes[0], LEFT)
             self.play(
@@ -139,7 +139,7 @@ class DualScene(Scene):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list_shift.nodes[idx2]     
 
-            textfunc = Text(f"insert() to head position", font_size = 36)
+            textfunc = Text(f"insert() to head position", font_size = 42)
             textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list_shift.nodes[0], LEFT)
             self.play(
@@ -206,7 +206,7 @@ class DualScene(Scene):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list.nodes[idx1]     
 
-            textfunc = Text(f"insert() to tail position", font_size = 36)
+            textfunc = Text(f"insert() to tail position", font_size = 42)
             textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list.nodes[0], LEFT)
             self.play(
@@ -289,7 +289,7 @@ class DualScene(Scene):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list_shift.nodes[idx1]     
 
-            textfunc = Text(f"insert() to tail position", font_size = 36)
+            textfunc = Text(f"insert() to tail position", font_size = 42)
             textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list_shift.nodes[0], LEFT)
             self.play(
@@ -411,7 +411,7 @@ class DualScene(Scene):
             node1 = linked_list.nodes[idx1]
             node2 = linked_list.nodes[idx2]     
 
-            textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
+            textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
             textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list.nodes[0], LEFT)
             self.play(
@@ -513,7 +513,7 @@ class DualScene(Scene):
             node1 = linked_list_shift.nodes[idx1]
             node2 = linked_list_shift.nodes[idx2]     
 
-            textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
+            textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
             textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
             textfunc.align_to(linked_list_shift.nodes[0], LEFT)
             self.play(
@@ -672,7 +672,7 @@ class DualScene(Scene):
         node1 = linked_list.nodes[idx1]
         node2 = linked_list.nodes[idx2]     
 
-        textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
+        textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
         textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
         textfunc.align_to(linked_list.nodes[0], LEFT)
         self.play(
@@ -719,7 +719,7 @@ class DualScene(Scene):
         node1 = linked_list_shift.nodes[idx1]
         node2 = linked_list_shift.nodes[idx2]     
 
-        textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
+        textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
         textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
         textfunc.align_to(linked_list_shift.nodes[0], LEFT)
         self.play(
