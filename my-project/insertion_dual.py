@@ -1,6 +1,9 @@
 from manim import *
 from node_basic import LinkedListNodeBasic
 from linked_list_vgroup import LinkedListVGroup
+from memory_unit import MemoryUnit
+from memory_units_vgroup import MemoryUnitsVGroup
+import random
 
 class DualScene(Scene):
     
@@ -12,20 +15,29 @@ class DualScene(Scene):
         self.camera.frame_center = ORIGIN
 
         # Get input from user
-        node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
+        node_values = input("Enter distinctive node letters separated by space (e.g., a b c d, min = 5, max = 29): ").split()
         insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
         new_letter = input("Enter the new node letter: ")
 
-        # Create the linked list group
+        # Create the linked list groups and memory units
         linked_list = LinkedListVGroup(node_values)
         linked_list_shift = LinkedListVGroup(node_values)
+        memory_line = MemoryUnitsVGroup(node_values)
 
         # Position the left linked list group to the left of the center
         linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 4)
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 4)  
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 4) 
+        memory_line.move_to(ORIGIN + DOWN * 4)
 
         # Animate node creation
         self.animate_nodes(linked_list.nodes, linked_list_shift.nodes)
+        
+        # Show the memory units
+        self.play(FadeIn(memory_line, run_time=2))
+        self.wait(1)
+
+        # Show the memory units arrows
+        self.create_arrows(memory_line)
 
         # Perform insertion animation
         self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter)
@@ -74,6 +86,25 @@ class DualScene(Scene):
                     self.play(FadeIn(arrow_left, run_time=0.1), FadeIn(arrow_right, run_time=0.1))
 
         self.wait(1)
+
+    # Creates arrows for memory units
+    def create_arrows(self, memory_line):
+        arrows = VGroup()
+
+        # Create arrows between the nodes for only non-empty nodes
+        for i in range(len(memory_line.original_nodes) - 1):
+            start_node = memory_line.original_nodes[i]   # Get node in original order
+            next_node = memory_line.original_nodes[i + 1] # Next node in original order
+
+            if start_node.value is not None and next_node.value is not None:
+                # Set the next arrow
+                arrow = start_node.set_next(next_node, arrow_type=CurvedArrow, color=WHITE)
+                arrows.add(arrow)
+
+        # Animate the arrows appearing one by one
+        for i, arrow in enumerate(arrows):
+            self.play(FadeIn(arrow, run_time=0.5))
+            self.wait(0.5)
     
     # Determines the correct method for inserting a node
     def insert_node(self, linked_list, insert_idx1, insert_idx2, new_letter):
