@@ -1,6 +1,6 @@
 from manim import *
 from node_basic import LinkedListNodeBasic
-from insertion_vgroup import LinkedListVGroup
+from linked_list_vgroup import LinkedListVGroup
 
 class DualScene(Scene):
     
