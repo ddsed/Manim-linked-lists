@@ -586,21 +586,27 @@ class DualScene(Scene):
                 shifts = shift_nodes_to_the_right(linked_list_shift.nodes, idx2)
                 # Checking what line we are inserting to
                 if node2.row % 2 == 0:
-                    # Stretch the existing arrow between node1 and node2 for even lines
-                    long_arrow = Arrow(
-                        start=node1.get_right(), 
-                        end=node2.get_left() + RIGHT * 2,
-                        tip_length=0.2,
-                        buff=0.1
-                    )
+                    if idx1 == 8:
+                        long_arrow = node1.next_arrow
+                    else:
+                        # Stretch the existing arrow between node1 and node2 for even lines
+                        long_arrow = Arrow(
+                            start=node1.get_right(), 
+                            end=node2.get_left() + RIGHT * 2,
+                            tip_length=0.2,
+                            buff=0.1
+                        )
                 else:
-                    # Stretch the existing arrow between node1 and node2 for odd lines
-                    long_arrow = Arrow(
-                        start=node1.get_left(), 
-                        end=node2.get_right() + LEFT * 2,
-                        tip_length=0.2,
-                        buff=0.1
-                    )
+                    if idx1 == 18:
+                        long_arrow = node1.next_arrow
+                    else:
+                        # Stretch the existing arrow between node1 and node2 for odd lines
+                        long_arrow = Arrow(
+                            start=node1.get_left(), 
+                            end=node2.get_right() + LEFT * 2,
+                            tip_length=0.2,
+                            buff=0.1
+                        )
             # Displaying stretching the arrow simultaneously with shifting
             self.play(
                 *shifts, 
@@ -610,7 +616,12 @@ class DualScene(Scene):
 
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
-            initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
+            if idx1 == 8:
+                initial_position = node1.get_center() + RIGHT * 2
+            elif idx1 == 18:
+                initial_position = node1.get_center() + LEFT * 2
+            else:
+                initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
             
             new_node.move_to(initial_position)
 
@@ -637,65 +648,70 @@ class DualScene(Scene):
                     tip_length=0.2,
                     buff=0.1 
                 )
-
-            new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
-
-            self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
-
-            #Position for a new node in line
-            final_position = initial_position -  UP * 1.5
-
-            # Updater for new node movement
-            def update_node_position(node):
-                if not np.allclose(node.get_center(), final_position):
-                    node.shift(DOWN * 0.05)
-                else:
-                    node.remove_updater(update_node_position)
-
-            if len(linked_list_shift.nodes) < 10 or node2.row % 2 == 0:
-                # Updater for arrow to new node
-                def update_arrow_to_new(arrow):
-                    arrow.put_start_and_end_on(
-                        node1.get_right() + RIGHT * 0.1,  
-                        new_node.get_left() + LEFT * 0.1 
-                    )
-
-                # Updater for arrow from new node
-                def update_arrow_from_new(arrow):
-                    arrow.put_start_and_end_on(
-                        new_node.get_right() + RIGHT * 0.1, 
-                        node2.get_left() + LEFT * 0.1 
-                    )
+            if idx1 == 8 or idx1 == 18:
+                new_node.next_arrow = new_node.set_next(node2, 1, 2)
+                self.play(FadeIn(new_node.next_arrow))
             else:
-                # Updater for arrow to new node
-                def update_arrow_to_new(arrow):
-                    arrow.put_start_and_end_on(
-                        node1.get_left() + LEFT * 0.1,  
-                        new_node.get_right() + RIGHT * 0.1 
-                    )
+                new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
+                self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
-                # Updater for arrow from new node
-                def update_arrow_from_new(arrow):
-                    arrow.put_start_and_end_on(
-                        new_node.get_left() + LEFT * 0.1, 
-                        node2.get_right() + RIGHT * 0.1 
-                    )
-            
-            # Add updaters
-            new_node.add_updater(update_node_position)
-            new_node.next_arrow.add_updater(update_arrow_from_new)
-            node1.next_arrow.add_updater(update_arrow_to_new)
+            if idx1 == 8 or idx1 == 18:
+                pass
+            else:
+                #Position for a new node in line
+                final_position = initial_position -  UP * 1.5
 
-            # Animate the node and arrows moving to their final positions
-            self.play(
-                new_node.animate.move_to(final_position),
-                run_time=1.5,
-            )
+                # Updater for new node movement
+                def update_node_position(node):
+                    if not np.allclose(node.get_center(), final_position):
+                        node.shift(DOWN * 0.05)
+                    else:
+                        node.remove_updater(update_node_position)
 
-            # Remove updaters
-            new_node.remove_updater(update_node_position)
-            new_node.next_arrow.remove_updater(update_arrow_from_new)
-            node1.next_arrow.remove_updater(update_arrow_to_new)
+                if len(linked_list_shift.nodes) < 10 or node2.row % 2 == 0:
+                    # Updater for arrow to new node
+                    def update_arrow_to_new(arrow):
+                        arrow.put_start_and_end_on(
+                            node1.get_right() + RIGHT * 0.1,  
+                            new_node.get_left() + LEFT * 0.1 
+                        )
+
+                    # Updater for arrow from new node
+                    def update_arrow_from_new(arrow):
+                        arrow.put_start_and_end_on(
+                            new_node.get_right() + RIGHT * 0.1, 
+                            node2.get_left() + LEFT * 0.1 
+                        )
+                else:
+                    # Updater for arrow to new node
+                    def update_arrow_to_new(arrow):
+                        arrow.put_start_and_end_on(
+                            node1.get_left() + LEFT * 0.1,  
+                            new_node.get_right() + RIGHT * 0.1 
+                        )
+
+                    # Updater for arrow from new node
+                    def update_arrow_from_new(arrow):
+                        arrow.put_start_and_end_on(
+                            new_node.get_left() + LEFT * 0.1, 
+                            node2.get_right() + RIGHT * 0.1 
+                        )
+                
+                # Add updaters
+                new_node.add_updater(update_node_position)
+                new_node.next_arrow.add_updater(update_arrow_from_new)
+                node1.next_arrow.add_updater(update_arrow_to_new)
+
+                # Animate the node and arrows moving to their final positions
+                self.play(
+                    new_node.animate.move_to(final_position),
+                    run_time=1.5,
+                )
+
+                # Remove updaters
+                new_node.remove_updater(update_node_position)
+                new_node.next_arrow.remove_updater(update_arrow_from_new)
+                node1.next_arrow.remove_updater(update_arrow_to_new)
 
     # Handles static insertion in between lines
     def insert_node_inbetween_lines(self, linked_list, idx1, idx2, new_value):
