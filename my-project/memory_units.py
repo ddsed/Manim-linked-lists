@@ -11,6 +11,8 @@ class MemoryLineScene(Scene):
 
         # Get input from user
         node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
+        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
+        new_letter = input("Enter the new node letter: ")
 
         # Create memory line with both values and empty units
         memory_line = MemoryUnitsVGroup(node_values)
@@ -21,6 +23,8 @@ class MemoryLineScene(Scene):
 
         # Show the memory units arrows
         self.create_arrows(memory_line)
+        self.wait(1)
+        self.insert(memory_line, insert_idx1, insert_idx2, new_letter)
 
     def create_arrows(self, memory_line):
         arrows = VGroup()
@@ -43,3 +47,66 @@ class MemoryLineScene(Scene):
             else:
                 # Faster speed for the rest of the arrows
                 self.play(FadeIn(arrow, run_time=0.2))
+
+    def insert(self, nodes, idx1, idx2, new_letter):
+        # Find the memory units for insertion + color code them
+        node1 = nodes.original_nodes[idx1]
+        node2 = nodes.original_nodes[idx2]     
+
+        textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
+        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.align_to(nodes[0])
+
+        self.play(
+            node1.box.animate.set_fill(GREEN, opacity=0.35),
+            node1.next_arrow.animate.shift(DOWN * 0.01).set_color(GREEN).set_stroke(width=10),
+            node2.box.animate.set_fill(GREEN, opacity=0.35),
+            nodes.index_labels[idx1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            nodes.index_labels[idx2][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            FadeIn(textfunc)
+        )
+
+        self.play(FadeOut(textfunc), FadeOut(nodes.empty_nodes[0].text))
+
+        # Creating new node on the place of an empty unit
+        new_node = nodes.empty_nodes[0]
+        new_node.value = new_letter
+        new_node.text = Text(str(new_letter), font_size=24).move_to(new_node.box.get_left() + RIGHT * 0.25)
+
+        self.play(
+            new_node.box.animate.set_fill(GREEN, opacity=1),
+            FadeIn(new_node.text) 
+        )
+
+        # Creating an arrow to a new node
+        node1_x = node1.get_center()[0]
+        new_node_x = new_node.get_center()[0]
+
+        if node1_x < new_node_x:
+            arrow_to_new = CurvedArrow(
+                start_point=node1.next_arrow.get_start(),
+                end_point=new_node.get_bottom() + LEFT * 0.25,
+                angle=TAU/4
+            )
+        else:
+            arrow_to_new = CurvedArrow(
+                start_point=node1.next_arrow.get_start(),
+                end_point=new_node.get_bottom() + LEFT * 0.25,
+                angle=-TAU/4
+            )
+
+        arrow_to_new.set_color(GREEN)
+        arrow_to_new.set_stroke(width=10)
+
+        # Creating an arrow from a new node
+        new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN, stroke_width=10)
+
+        self.play(
+            Transform(node1.next_arrow, arrow_to_new), 
+            FadeIn(new_node.next_arrow)
+        )
+
+        self.play(
+            node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4), 
+            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4), 
+        )
