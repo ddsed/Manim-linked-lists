@@ -4,14 +4,16 @@ import random
 
 class MemoryUnitsVGroup(VGroup):
     
-    def __init__(self, node_values, num_empty_units=5, node_spacing=0.15, **kwargs):
+    def __init__(self, node_values, node_spacing=0.15, **kwargs):
         super().__init__(**kwargs)
         
         # Create memory units with values (original input nodes)
         self.original_nodes = [MemoryUnit(value) for value in node_values]
+
+        self.num_empty_units = max(5, 35 - len(self.original_nodes))
         
         # Create empty units
-        self.empty_nodes = [MemoryUnit(None) for _ in range(num_empty_units)]
+        self.empty_nodes = [MemoryUnit(None) for _ in range(self.num_empty_units)]
         
         # Combine original nodes + empty nodes
         all_nodes = self.original_nodes + self.empty_nodes

@@ -4,7 +4,7 @@ from memory_units_vgroup import MemoryUnitsVGroup
 class MemoryLineScene(Scene):
     def construct(self):
         # Show animation without cropping
-        scale_factor = 1.5
+        scale_factor = 3
         self.camera.frame_width = 14 * scale_factor  # Default width is 14
         self.camera.frame_height = self.camera.frame_width / 1.78  # Keep 16:9 aspect ratio
         self.camera.frame_center = ORIGIN  # Keep centered
@@ -32,10 +32,14 @@ class MemoryLineScene(Scene):
 
             if start_node.value is not None and next_node.value is not None:
                 # Set the next arrow
-                arrow = start_node.set_next(next_node, arrow_type=CurvedArrow, color=WHITE)
+                arrow = start_node.set_next(next_node, CurvedArrow, color=WHITE)
                 arrows.add(arrow)
 
-        # Animate the arrows appearing one by one
         for i, arrow in enumerate(arrows):
-            self.play(FadeIn(arrow, run_time=0.5))
-            self.wait(0.5)
+        # Slower speed for the first 5 arrows
+            if i < 5:
+                self.play(FadeIn(arrow, run_time=0.5))
+                self.wait(0.1)
+            else:
+                # Faster speed for the rest of the arrows
+                self.play(FadeIn(arrow, run_time=0.2))

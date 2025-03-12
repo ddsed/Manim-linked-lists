@@ -25,9 +25,9 @@ class DualScene(Scene):
         memory_line = MemoryUnitsVGroup(node_values)
 
         # Position the left linked list group to the left of the center
-        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 4)
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 4) 
-        memory_line.move_to(ORIGIN + DOWN * 4)
+        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 4.5)
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 4.5) 
+        memory_line.move_to(ORIGIN + DOWN * 3.5)
 
         # Animate node creation
         self.animate_nodes(linked_list.nodes, linked_list_shift.nodes)
@@ -101,10 +101,14 @@ class DualScene(Scene):
                 arrow = start_node.set_next(next_node, arrow_type=CurvedArrow, color=WHITE)
                 arrows.add(arrow)
 
-        # Animate the arrows appearing one by one
         for i, arrow in enumerate(arrows):
-            self.play(FadeIn(arrow, run_time=0.5))
-            self.wait(0.5)
+        # Slower speed for the first 5 arrows
+            if i < 5:
+                self.play(FadeIn(arrow, run_time=0.5))
+                self.wait(0.1)
+            else:
+                # Faster speed for the rest of the arrows
+                self.play(FadeIn(arrow, run_time=0.2))
     
     # Determines the correct method for inserting a node
     def insert_node(self, linked_list, insert_idx1, insert_idx2, new_letter):
@@ -625,10 +629,18 @@ class DualScene(Scene):
             
             new_node.move_to(initial_position)
 
-            self.play(
-                FadeIn(new_node), 
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
-            )
+            if idx1 == 8 or idx1 == 18:
+                new_node.next_arrow = new_node.set_next(node2, 1, 2)
+                self.play(
+                    FadeIn(new_node.next_arrow),
+                    FadeIn(new_node), 
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
+            else:
+                self.play(
+                    FadeIn(new_node), 
+                    new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                )
 
             # Logic for either 1 l ine, or even lines 
             if len(linked_list_shift.nodes) < 10 or node2.row % 2 == 0:
@@ -648,16 +660,13 @@ class DualScene(Scene):
                     tip_length=0.2,
                     buff=0.1 
                 )
-            if idx1 == 8 or idx1 == 18:
-                new_node.next_arrow = new_node.set_next(node2, 1, 2)
-                self.play(FadeIn(new_node.next_arrow))
-            else:
-                new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
-                self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
             if idx1 == 8 or idx1 == 18:
                 pass
             else:
+                new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
+                self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
+
                 #Position for a new node in line
                 final_position = initial_position -  UP * 1.5
 

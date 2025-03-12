@@ -366,11 +366,19 @@ class LinkedListShiftScene(MovingCameraScene):
             initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
         
         new_node.move_to(initial_position)
-
-        self.play(
-            FadeIn(new_node), 
-            new_node.box.animate.set_fill(GREEN_E, opacity=1)
-        )
+        
+        if idx1 == 8 or idx1 == 18:
+            new_node.next_arrow = new_node.set_next(node2, 1, 2)
+            self.play(
+                FadeIn(new_node.next_arrow),
+                FadeIn(new_node), 
+                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+            )
+        else:
+            self.play(
+                FadeIn(new_node), 
+                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+            )
 
         # Arrow to a new node
         # Logic for either 1 l ine, or even lines 
@@ -391,15 +399,11 @@ class LinkedListShiftScene(MovingCameraScene):
             )
         
         if idx1 == 8 or idx1 == 18:
-            new_node.next_arrow = new_node.set_next(node2, 1, 2)
-            self.play(FadeIn(new_node.next_arrow))
+            pass
         else:
             new_node.next_arrow = new_node.set_next(node2, node1.row, node2.row)
             self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
-
-        if idx1 == 8 or idx1 == 18:
-            pass
-        else:
+            
             #Position for a new node in line
             final_position = initial_position -  UP * 1.5
 

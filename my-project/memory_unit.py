@@ -17,18 +17,32 @@ class MemoryUnit(VGroup):
         self.next_arrow = None
 
 
-    def set_next(self, next_node, arrow_type=CurvedArrow, **arrow_kwargs):
+    def set_next(self, next_node, arrow_type, **arrow_kwargs):
         if self.next_arrow:
             self.remove(self.next_arrow) 
 
         start = self.get_bottom()
         end = next_node.get_bottom()
 
-        # Create an arrow (CurvedArrow by default)
-        self.next_arrow = arrow_type(
-            start_point=start + RIGHT * 0.25, 
-            end_point=end  + LEFT * 0.25, 
-            **arrow_kwargs
-        )
+        # Get the x-coordinate positions of the current node and next node
+        current_x = self.get_center()[0]
+        next_x = next_node.get_center()[0]
+
+        if current_x < next_x:
+            # Create an arrow (CurvedArrow by default)
+            self.next_arrow = arrow_type(
+                start_point=start + RIGHT * 0.25, 
+                end_point=end + LEFT * 0.25,
+                angle=TAU/4,
+                **arrow_kwargs
+            )
+        else:
+            # Create an arrow (CurvedArrow by default)
+            self.next_arrow = arrow_type(
+                start_point=start + RIGHT * 0.25, 
+                end_point=end + LEFT * 0.25,
+                angle=-TAU/4,
+                **arrow_kwargs
+            )
 
         return self.next_arrow
