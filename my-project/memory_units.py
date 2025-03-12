@@ -105,8 +105,3 @@ class MemoryLineScene(Scene):
             Transform(node1.next_arrow, arrow_to_new), 
             FadeIn(new_node.next_arrow)
         )
-
-        self.play(
-            node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4), 
-            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4), 
-        )
