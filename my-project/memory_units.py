@@ -16,7 +16,7 @@ class MemoryLineScene(Scene):
         memory_line = MemoryUnitsVGroup(node_values)
 
         # Show the memory units
-        self.play(FadeIn(memory_line, run_time=2))
+        self.play(FadeIn(memory_line, run_time=1))
         self.wait(1)
 
         # Show the memory units arrows

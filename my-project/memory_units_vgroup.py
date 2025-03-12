@@ -28,6 +28,21 @@ class MemoryUnitsVGroup(VGroup):
 
         self.construct_memory()
         self.create_index_labels() 
+        self.create_memory_labels()
+
+        # Explanation texts
+        memory_text = Text("memory address", color=ORANGE, font_size=24)
+        memory_text.next_to(self.shuffled_nodes[0], UP, buff=2.25)
+        memory_text.align_to(self.shuffled_nodes[0], LEFT)
+
+        circle = Circle(radius=0.3, color=PURPLE, fill_opacity=1)
+        index_text = Text("idx", color=WHITE, font_size=24)
+        index_text.move_to(circle.get_center())
+        index_text_bg = VGroup(circle, index_text)
+        index_text_bg.next_to(self.shuffled_nodes[0], UP, buff=1.5)
+        index_text_bg.align_to(self.shuffled_nodes[0], LEFT)
+
+        self.add(memory_text, index_text_bg)
 
     # Positions memory units in a line
     def construct_memory(self):
@@ -53,3 +68,21 @@ class MemoryUnitsVGroup(VGroup):
                 self.index_labels.add(index_with_bg)
 
         self.add(self.index_labels)
+
+    def create_memory_labels(self):
+        self.memory_labels = VGroup()
+
+        current_number = 487
+        for node in self.shuffled_nodes:
+            # Create a memory unit number above each node
+            memory_label = Text(str(current_number), color=ORANGE, font_size=24)
+            memory_label.move_to(node.get_top() + UP * 1)
+            
+            # Add the label to the index_labels group
+            self.memory_labels.add(memory_label)
+
+            # Increment the number for the next label
+            current_number += 1
+
+        # Add all the index labels to the scene
+        self.add(self.memory_labels)
