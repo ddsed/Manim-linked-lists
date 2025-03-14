@@ -129,6 +129,23 @@ class MemoryLineScene(Scene):
             Transform(node1.next_arrow, arrow_to_new), 
             FadeIn(new_node.next_arrow)
         )
+
+        self.wait(1)
+
+        self.play(
+            node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            node1.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+            ]
+        )
     
     def insert_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
@@ -159,7 +176,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow and arrow is not node_head.next_arrow
+                if arrow is not new_node.next_arrow
             ]
         )
 
@@ -168,6 +185,21 @@ class MemoryLineScene(Scene):
         new_node.next_arrow.set_stroke(width=10)
         self.play(FadeIn(new_node.next_arrow))
 
+        self.wait(1)
+
+        self.play(
+            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow
+            ]
+        )
+    
     def insert_tail(self, nodes, idx1, new_letter, arrows):
         # Find the memory units for insertion + color code them
         node_tail = nodes.original_nodes[idx1]  
@@ -203,5 +235,25 @@ class MemoryLineScene(Scene):
         )
 
         # Creating an arrow to a new node
-        node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN, stroke_width=10)
+        node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN)
+        node_tail.next_arrow.set_stroke(width=10)
         self.play(FadeIn(node_tail.next_arrow))
+
+        self.wait(1)
+
+        self.play(
+            node_tail.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            node_tail.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not node_tail.next_arrow
+            ]
+        )
+    
+
+    # def transform_pointers(self, nodes):
+        

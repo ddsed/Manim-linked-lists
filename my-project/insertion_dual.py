@@ -969,6 +969,23 @@ class DualScene(Scene):
             FadeIn(new_node.next_arrow)
         )
 
+        self.wait(1)
+        
+        self.play(
+            node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            node1.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+            ]
+        )
+
     # Handles head insertion in memory unites line
     def insert_memory_unit_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
@@ -1008,6 +1025,21 @@ class DualScene(Scene):
         new_node.next_arrow.set_stroke(width=10)
         self.play(FadeIn(new_node.next_arrow))
 
+        self.wait(1)
+
+        self.play(
+            new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow
+            ]
+        )
+
     # Handles tail insertion in memory unites line
     def insert_memory_unit_tail(self, nodes, idx1, new_letter, arrows):
         # Find the memory units for insertion + color code them
@@ -1044,8 +1076,24 @@ class DualScene(Scene):
         )
 
         # Creating an arrow to a new node
-        node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN, stroke_width=10)
+        node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN)
+        node_tail.next_arrow.set_stroke(width=10)
         self.play(FadeIn(node_tail.next_arrow))
+
+        self.wait(1)
+
+        self.play(
+            node_tail.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            node_tail.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not node_tail.next_arrow
+            ]
+        )
 
 # Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):
