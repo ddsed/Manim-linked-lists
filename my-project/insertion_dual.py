@@ -46,7 +46,11 @@ class DualScene(Scene):
         # Perform insertion animation
         self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter)
         self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
-        self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter)
+
+        if insert_idx2 == 0:
+            self.insert_memory_unit_head(memory_line, insert_idx2, new_letter)
+        else:
+            self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter)
     
     # Handles the animation for showing nodes
     def animate_nodes(self, nodes_left, nodes_right):
@@ -945,6 +949,35 @@ class DualScene(Scene):
             Transform(node1.next_arrow, arrow_to_new), 
             FadeIn(new_node.next_arrow)
         )
+
+    def insert_memory_unit_head(self, nodes, idx2, new_letter):
+        node_head = nodes.original_nodes[idx2] 
+
+        textfunc = Text(f"insert() to head position", font_size = 36)
+        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.align_to(nodes[0]) 
+
+        self.play(
+            node_head.box.animate.set_fill(GREEN, opacity=0.35),
+            nodes.index_labels[idx2][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            FadeIn(textfunc)
+        )
+
+        self.play(FadeOut(textfunc), FadeOut(nodes.empty_nodes[0].text))
+
+        # Creating new node on the place of an empty unit
+        new_node = nodes.empty_nodes[0]
+        new_node.value = new_letter
+        new_node.text = Text(str(new_letter), font_size=24).move_to(new_node.box.get_left() + RIGHT * 0.25)
+
+        self.play(
+            new_node.box.animate.set_fill(GREEN, opacity=1),
+            FadeIn(new_node.text) 
+        )
+
+        # Creating an arrow from a new node
+        new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN, stroke_width=10)
+        self.play(FadeIn(new_node.next_arrow))
 
 # Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):
