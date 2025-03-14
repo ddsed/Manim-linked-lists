@@ -25,9 +25,13 @@ class DualScene(Scene):
         memory_line = MemoryUnitsVGroup(node_values)
 
         # Position the left linked list group to the left of the center
-        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 5.5)
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 5.5) 
-        memory_line.move_to(ORIGIN + DOWN * 2.5)
+        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 5.3)
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 5.3) 
+        memory_line.move_to(ORIGIN + DOWN * 2.2)
+
+        title = Text("Linked List: levels of abstraction", font_size=50)
+        title.move_to(ORIGIN + UP * 10.9)
+        self.play(FadeIn(title))
 
         # Animate node creation
         self.animate_nodes(linked_list.nodes, linked_list_shift.nodes)
@@ -47,8 +51,8 @@ class DualScene(Scene):
     # Handles the animation for showing nodes
     def animate_nodes(self, nodes_left, nodes_right):
         # Text to show
-        textfuncadd = Text("add()", font_size=66)
-        textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=66)
+        textfuncadd = Text("add()", font_size=42)
+        textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=42)
 
         # Positioning the text at the top of the screen
         textfuncadd.next_to(nodes_left[0], UP, buff=0.6)
