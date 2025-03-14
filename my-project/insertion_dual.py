@@ -959,6 +959,7 @@ class DualScene(Scene):
             FadeIn(new_node.next_arrow)
         )
 
+    # Handles head insertion in memory unites line
     def insert_memory_unit_head(self, nodes, idx2, new_letter):
         node_head = nodes.original_nodes[idx2] 
 
@@ -988,6 +989,7 @@ class DualScene(Scene):
         new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN, stroke_width=10)
         self.play(FadeIn(new_node.next_arrow))
 
+    # Handles tail insertion in memory unites line
     def insert_memory_unit_tail(self, nodes, idx1, new_letter):
         # Find the memory units for insertion + color code them
         node_tail = nodes.original_nodes[idx1]  
@@ -1017,6 +1019,7 @@ class DualScene(Scene):
         # Creating an arrow to a new node
         node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN, stroke_width=10)
         self.play(FadeIn(node_tail.next_arrow))
+
 # Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):
     shifts = []
