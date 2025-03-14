@@ -11,8 +11,15 @@ class LinkedListShiftScene(MovingCameraScene):
         self.camera.frame_center = ORIGIN  # Keep centered
 
         # Get input from user
-        node_values = input("Enter distinctive node letters separated by space (e.g., A B C D, min = 5): ").split()
-        insert_idx1, insert_idx2 = map(int, input("Enter the two node indices where a new node should be inserted (0-based).\nIf you want to insert to the head – enter 0 0;\nIf you want to insert to the tail - enter the index of the last node twice: ").split())
+        node_values = input("Enter node letters separated by space (e.g., A B C D, max = 29): ").split()
+        last_index = len(node_values) - 1
+
+        insert_idx1, insert_idx2 = map(int, input(
+            f"Enter the two node indices where a new node should be inserted (0-based).\n"
+            f"If you want to insert to the head – enter 0 0;\n"
+            f"If you want to insert to the tail – enter the index of the last node (={last_index}) twice: "
+        ).split())
+
         new_letter = input("Enter the new node letter: ")
 
         # Create and position nodes
