@@ -48,18 +48,18 @@ class DualScene(Scene):
         self.wait(1)
 
         # Show the memory units arrows
-        self.create_arrows(memory_line)
+        arrows = self.create_arrows(memory_line)
 
         # Perform insertion animation
         self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter)
         self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
 
         if insert_idx2 == 0:
-            self.insert_memory_unit_head(memory_line, insert_idx2, new_letter)
+            self.insert_memory_unit_head(memory_line, insert_idx2, new_letter, arrows)
         elif insert_idx1 == len(memory_line.original_nodes) - 1:
-            self.insert_memory_unit_tail(memory_line, insert_idx1, new_letter)
+            self.insert_memory_unit_tail(memory_line, insert_idx1, new_letter, arrows)
         else:
-            self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter)
+            self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
     
     # Handles the animation for showing nodes
     def animate_nodes(self, nodes_left, nodes_right):
@@ -127,6 +127,7 @@ class DualScene(Scene):
             else:
                 # Faster speed for the rest of the arrows
                 self.play(FadeIn(arrow, run_time=0.2))
+        return arrows
     
     # Determines the correct method for inserting a node
     def insert_node(self, linked_list, insert_idx1, insert_idx2, new_letter):
@@ -901,7 +902,7 @@ class DualScene(Scene):
         )
 
     # Handles insertion in memory unites line
-    def insert_memory_unit(self, nodes, idx1, idx2, new_letter):
+    def insert_memory_unit(self, nodes, idx1, idx2, new_letter, arrows):
         # Find the memory units for insertion + color code them
         node1 = nodes.original_nodes[idx1]
         node2 = nodes.original_nodes[idx2]     
@@ -928,7 +929,15 @@ class DualScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35), 
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+            ]
         )
 
         # Creating an arrow to a new node
@@ -952,7 +961,8 @@ class DualScene(Scene):
         arrow_to_new.set_stroke(width=10)
 
         # Creating an arrow from a new node
-        new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN, stroke_width=10)
+        new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN)
+        new_node.next_arrow.set_stroke(width=10)
 
         self.play(
             Transform(node1.next_arrow, arrow_to_new), 
@@ -960,7 +970,7 @@ class DualScene(Scene):
         )
 
     # Handles head insertion in memory unites line
-    def insert_memory_unit_head(self, nodes, idx2, new_letter):
+    def insert_memory_unit_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
 
         textfunc = Text(f"insert() to head position", font_size = 36)
@@ -982,15 +992,24 @@ class DualScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow
+            ]
         )
 
         # Creating an arrow from a new node
-        new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN, stroke_width=10)
+        new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN)
+        new_node.next_arrow.set_stroke(width=10)
         self.play(FadeIn(new_node.next_arrow))
 
     # Handles tail insertion in memory unites line
-    def insert_memory_unit_tail(self, nodes, idx1, new_letter):
+    def insert_memory_unit_tail(self, nodes, idx1, new_letter, arrows):
         # Find the memory units for insertion + color code them
         node_tail = nodes.original_nodes[idx1]  
 
@@ -1013,7 +1032,15 @@ class DualScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not node_tail.next_arrow
+            ] 
         )
 
         # Creating an arrow to a new node

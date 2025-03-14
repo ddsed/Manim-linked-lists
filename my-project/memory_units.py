@@ -30,14 +30,14 @@ class MemoryLineScene(Scene):
         self.wait(1)
 
         # Show the memory units arrows
-        self.create_arrows(memory_line)
+        arrows = self.create_arrows(memory_line)
         self.wait(1)
         if insert_idx2 == 0:
-            self.insert_head(memory_line, insert_idx2, new_letter)
+            self.insert_head(memory_line, insert_idx2, new_letter, arrows)
         elif insert_idx1 == len(memory_line.original_nodes) - 1:
-            self.insert_tail(memory_line, insert_idx1, new_letter)
+            self.insert_tail(memory_line, insert_idx1, new_letter, arrows)
         else:
-            self.insert(memory_line, insert_idx1, insert_idx2, new_letter)
+            self.insert(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
 
     def create_arrows(self, memory_line):
         arrows = VGroup()
@@ -61,7 +61,9 @@ class MemoryLineScene(Scene):
                 # Faster speed for the rest of the arrows
                 self.play(FadeIn(arrow, run_time=0.2))
 
-    def insert(self, nodes, idx1, idx2, new_letter):
+        return arrows
+
+    def insert(self, nodes, idx1, idx2, new_letter, arrows):
         # Find the memory units for insertion + color code them
         node1 = nodes.original_nodes[idx1]
         node2 = nodes.original_nodes[idx2]     
@@ -88,7 +90,15 @@ class MemoryLineScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35), 
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+            ]
         )
 
         # Creating an arrow to a new node
@@ -112,14 +122,15 @@ class MemoryLineScene(Scene):
         arrow_to_new.set_stroke(width=10)
 
         # Creating an arrow from a new node
-        new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN, stroke_width=10)
+        new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN)
+        new_node.next_arrow.set_stroke(width=10)
 
         self.play(
             Transform(node1.next_arrow, arrow_to_new), 
             FadeIn(new_node.next_arrow)
         )
     
-    def insert_head(self, nodes, idx2, new_letter):
+    def insert_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
 
         textfunc = Text(f"insert() to head position", font_size = 36)
@@ -141,14 +152,23 @@ class MemoryLineScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not new_node.next_arrow and arrow is not node_head.next_arrow
+            ]
         )
 
         # Creating an arrow from a new node
-        new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN, stroke_width=10)
+        new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN)
+        new_node.next_arrow.set_stroke(width=10)
         self.play(FadeIn(new_node.next_arrow))
 
-    def insert_tail(self, nodes, idx1, new_letter):
+    def insert_tail(self, nodes, idx1, new_letter, arrows):
         # Find the memory units for insertion + color code them
         node_tail = nodes.original_nodes[idx1]  
 
@@ -171,7 +191,15 @@ class MemoryLineScene(Scene):
 
         self.play(
             new_node.box.animate.set_fill(GREEN, opacity=1),
-            FadeIn(new_node.text) 
+            FadeIn(new_node.text),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not node_tail.next_arrow
+            ]
         )
 
         # Creating an arrow to a new node
