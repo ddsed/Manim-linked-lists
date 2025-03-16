@@ -1,4 +1,5 @@
 from manim import *
+import copy
 from node_basic import LinkedListNodeBasic
 from linked_list_vgroup import LinkedListVGroup
 from memory_unit import MemoryUnit
@@ -55,11 +56,13 @@ class DualScene(Scene):
         self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
 
         if insert_idx2 == 0:
-            self.insert_memory_unit_head(memory_line, insert_idx2, new_letter, arrows)
+            updated_original_nodes = self.insert_memory_unit_head(memory_line, insert_idx2, new_letter, arrows)
         elif insert_idx1 == len(memory_line.original_nodes) - 1:
-            self.insert_memory_unit_tail(memory_line, insert_idx1, new_letter, arrows)
+            updated_original_nodes = self.insert_memory_unit_tail(memory_line, insert_idx1, new_letter, arrows)
         else:
-            self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
+            updated_original_nodes = self.insert_memory_unit(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
+
+        self.transform_pointers(memory_line, updated_original_nodes)
     
     # Handles the animation for showing nodes
     def animate_nodes(self, nodes_left, nodes_right):
@@ -970,12 +973,13 @@ class DualScene(Scene):
         )
 
         self.wait(1)
-        
+
         self.play(
             node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             node1.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
             new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -985,6 +989,10 @@ class DualScene(Scene):
                 if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
             ]
         )
+
+        # Update the list of original nodes
+        nodes.original_nodes.insert(idx2, new_node)
+        return nodes.original_nodes
 
     # Handles head insertion in memory unites line
     def insert_memory_unit_head(self, nodes, idx2, new_letter, arrows):
@@ -1030,6 +1038,7 @@ class DualScene(Scene):
         self.play(
             new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -1039,6 +1048,10 @@ class DualScene(Scene):
                 if arrow is not new_node.next_arrow
             ]
         )
+        
+        # Update the list of original nodes
+        nodes.original_nodes.insert(idx2, new_node)
+        return nodes.original_nodes
 
     # Handles tail insertion in memory unites line
     def insert_memory_unit_tail(self, nodes, idx1, new_letter, arrows):
@@ -1085,6 +1098,7 @@ class DualScene(Scene):
         self.play(
             node_tail.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             node_tail.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -1094,6 +1108,54 @@ class DualScene(Scene):
                 if arrow is not node_tail.next_arrow
             ]
         )
+
+        # Update the list of original nodes
+        nodes.original_nodes.append(new_node)
+        return nodes.original_nodes
+    
+    # Handles tranformation of arrow pointers into memory addresses pointers
+    def transform_pointers(self, nodes, updated_original_nodes):
+        memory_labels = nodes.memory_labels
+
+        # Loop by indices of updated original nodes
+        for i, node in enumerate(updated_original_nodes):
+            # Avoid index error for the last node
+            if i < len(updated_original_nodes) - 1:
+                next_node = updated_original_nodes[i + 1]
+                label = memory_labels[nodes.shuffled_nodes.index(next_node)]
+                label_copy = copy.deepcopy(memory_labels[nodes.shuffled_nodes.index(next_node)])
+                if node.next_arrow is not None and i < 5:
+                    self.play(
+                        FadeOut(label),
+                        label_copy.animate.scale(1.5),
+                        node.next_arrow.animate.set_color(ORANGE)
+                    )
+                    circle = Circle(radius=0.2)
+                    circle.set_opacity(0) 
+                    circle.move_to(node.next_arrow.get_start())
+                    self.play(
+                        FadeIn(label),
+                        label_copy.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
+                        Transform(node.next_arrow, circle)
+                    )
+                    self.wait(0.5)
+                else:
+                    self.play(
+                        FadeOut(label),
+                        label_copy.animate.scale(1.5),
+                        node.next_arrow.animate.set_color(ORANGE),
+                        run_time = 0.3
+                    )
+                    circle = Circle(radius=0.2)
+                    circle.set_opacity(0) 
+                    circle.move_to(node.next_arrow.get_start())
+                    self.play(
+                        FadeIn(label),
+                        label_copy.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
+                        Transform(node.next_arrow, circle),
+                        run_time = 0.3
+                    )
+                    self.wait(0.2)
 
 # Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):

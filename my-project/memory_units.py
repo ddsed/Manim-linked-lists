@@ -153,7 +153,6 @@ class MemoryLineScene(Scene):
 
         # Update the list of original nodes
         nodes.original_nodes.insert(idx2, new_node)
-
         return nodes.original_nodes
     
     def insert_head(self, nodes, idx2, new_letter, arrows):
@@ -212,7 +211,6 @@ class MemoryLineScene(Scene):
 
         # Update the list of original nodes
         nodes.original_nodes.insert(idx2, new_node)
-
         return nodes.original_nodes
     
     def insert_tail(self, nodes, idx1, new_letter, arrows):
