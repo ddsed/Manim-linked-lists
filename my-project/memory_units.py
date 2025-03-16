@@ -1,4 +1,5 @@
 from manim import *
+import copy
 from memory_units_vgroup import MemoryUnitsVGroup
 
 class MemoryLineScene(Scene):
@@ -33,11 +34,13 @@ class MemoryLineScene(Scene):
         arrows = self.create_arrows(memory_line)
         self.wait(1)
         if insert_idx2 == 0:
-            self.insert_head(memory_line, insert_idx2, new_letter, arrows)
+            updated_original_nodes = self.insert_head(memory_line, insert_idx2, new_letter, arrows)
         elif insert_idx1 == len(memory_line.original_nodes) - 1:
-            self.insert_tail(memory_line, insert_idx1, new_letter, arrows)
+            updated_original_nodes = self.insert_tail(memory_line, insert_idx1, new_letter, arrows)
         else:
-            self.insert(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
+            updated_original_nodes = self.insert(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
+        
+        self.transform_pointers(memory_line, updated_original_nodes)
 
     def create_arrows(self, memory_line):
         arrows = VGroup()
@@ -146,6 +149,11 @@ class MemoryLineScene(Scene):
                 if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
             ]
         )
+
+        # Update the list of original nodes
+        nodes.original_nodes.insert(idx2, new_node)
+
+        return nodes.original_nodes
     
     def insert_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
@@ -254,6 +262,25 @@ class MemoryLineScene(Scene):
             ]
         )
     
+    def transform_pointers(self, nodes, updated_original_nodes):
+        memory_labels = nodes.memory_labels
 
-    # def transform_pointers(self, nodes):
-        
+        # Loop by indices of updated original nodes
+        for i, node in enumerate(updated_original_nodes):
+            # Avoid index error for the last node
+            if i < len(updated_original_nodes) - 1:
+                next_node = updated_original_nodes[i + 1]
+                label = memory_labels[nodes.shuffled_nodes.index(next_node)]
+                if node.next_arrow is not None:
+                    self.play(
+                        label.animate.scale(1.5),
+                        node.next_arrow.animate.set_color(ORANGE)
+                    )
+                    circle = Circle(radius=0.2)
+                    circle.set_opacity(0) 
+                    circle.move_to(node.next_arrow.get_start())
+                    self.play(
+                        label.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
+                        Transform(node.next_arrow, circle)
+                    )
+                    self.wait(0.5)
