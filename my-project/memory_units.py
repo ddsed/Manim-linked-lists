@@ -57,7 +57,7 @@ class MemoryLineScene(Scene):
 
         for i, arrow in enumerate(arrows):
         # Slower speed for the first 5 arrows
-            if i < 5:
+            if i < 3:
                 self.play(FadeIn(arrow, run_time=0.5))
                 self.wait(0.1)
             else:
@@ -140,6 +140,7 @@ class MemoryLineScene(Scene):
             node1.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
             new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -198,6 +199,7 @@ class MemoryLineScene(Scene):
         self.play(
             new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -207,6 +209,11 @@ class MemoryLineScene(Scene):
                 if arrow is not new_node.next_arrow
             ]
         )
+
+        # Update the list of original nodes
+        nodes.original_nodes.insert(idx2, new_node)
+
+        return nodes.original_nodes
     
     def insert_tail(self, nodes, idx1, new_letter, arrows):
         # Find the memory units for insertion + color code them
@@ -252,6 +259,7 @@ class MemoryLineScene(Scene):
         self.play(
             node_tail.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
             node_tail.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            new_node.box.animate.set_fill(GREEN, opacity=0.35),
             *[
             AnimationGroup(
                 arrow.animate.set_stroke(opacity=1), 
@@ -261,6 +269,10 @@ class MemoryLineScene(Scene):
                 if arrow is not node_tail.next_arrow
             ]
         )
+
+        # Update the list of original nodes
+        nodes.original_nodes.append(new_node)
+        return nodes.original_nodes
     
     def transform_pointers(self, nodes, updated_original_nodes):
         memory_labels = nodes.memory_labels
@@ -271,16 +283,36 @@ class MemoryLineScene(Scene):
             if i < len(updated_original_nodes) - 1:
                 next_node = updated_original_nodes[i + 1]
                 label = memory_labels[nodes.shuffled_nodes.index(next_node)]
-                if node.next_arrow is not None:
+                label_copy = copy.deepcopy(memory_labels[nodes.shuffled_nodes.index(next_node)])
+                if node.next_arrow is not None and i < 5:
                     self.play(
-                        label.animate.scale(1.5),
+                        FadeOut(label),
+                        label_copy.animate.scale(1.5),
                         node.next_arrow.animate.set_color(ORANGE)
                     )
                     circle = Circle(radius=0.2)
                     circle.set_opacity(0) 
                     circle.move_to(node.next_arrow.get_start())
                     self.play(
-                        label.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
+                        FadeIn(label),
+                        label_copy.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
                         Transform(node.next_arrow, circle)
                     )
                     self.wait(0.5)
+                else:
+                    self.play(
+                        FadeOut(label),
+                        label_copy.animate.scale(1.5),
+                        node.next_arrow.animate.set_color(ORANGE),
+                        run_time = 0.3
+                    )
+                    circle = Circle(radius=0.2)
+                    circle.set_opacity(0) 
+                    circle.move_to(node.next_arrow.get_start())
+                    self.play(
+                        FadeIn(label),
+                        label_copy.animate.scale(1 / 1.5).rotate(PI / 2).move_to(node.get_bottom() + RIGHT * 0.25 + UP * 0.5),
+                        Transform(node.next_arrow, circle),
+                        run_time = 0.3
+                    )
+                    self.wait(0.2)
