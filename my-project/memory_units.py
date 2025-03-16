@@ -54,6 +54,14 @@ class MemoryLineScene(Scene):
                 # Set the next arrow
                 arrow = start_node.set_next(next_node, CurvedArrow, color=WHITE)
                 arrows.add(arrow)
+        
+        # Create a dot arrow for the last node
+        last_node = memory_line.original_nodes[-1]
+        dot_arrow = Circle(radius=0.1)
+        dot_arrow.set_color(WHITE)
+        dot_arrow.set_fill(WHITE, opacity=1)
+        dot_arrow.move_to(last_node.get_bottom() + RIGHT * 0.25 + [0, 0.5, 0])
+        arrows.add(dot_arrow)
 
         for i, arrow in enumerate(arrows):
         # Slower speed for the first 5 arrows
@@ -100,7 +108,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -147,7 +155,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -184,7 +192,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow
+                if arrow is not new_node.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -205,7 +213,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow
+                if arrow is not new_node.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -243,14 +251,16 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not node_tail.next_arrow
+                if arrow is not node_tail.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
         # Creating an arrow to a new node
         node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN)
         node_tail.next_arrow.set_stroke(width=10)
-        self.play(FadeIn(node_tail.next_arrow))
+        self.play(FadeOut(arrows[-1]), FadeIn(node_tail.next_arrow))
+        arrows[-1].move_to(new_node.get_bottom() + RIGHT * 0.25 + [0, 0.5, 0])
+        self.play(FadeIn(arrows[-1]))
 
         self.wait(1)
 
@@ -264,7 +274,7 @@ class MemoryLineScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not node_tail.next_arrow
+                if arrow is not node_tail.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
