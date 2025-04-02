@@ -88,6 +88,14 @@ class LinkedListStaticScene(MovingCameraScene):
                     arrow = nodes[i - 1].set_next(node, (i - 1) // 10, i // 10)
                     self.play(FadeIn(arrow, run_time=0.1))
         
+        # Last null pointer logic
+        last_node = nodes[-1]
+        if len(nodes) in [10, 20]:
+            last_node.set_next(None, last_node.row, last_node.row + 1)
+        else:
+            last_node.set_next(None, last_node.row, last_node.row)
+        self.play(FadeIn(last_node.next_arrow, run_time=0.1))
+        
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter):
         #Determines the correct method for inserting a node and calls it.
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
@@ -161,15 +169,21 @@ class LinkedListStaticScene(MovingCameraScene):
         if idx1 == 9 or idx1 == 19:
             initial_position = node1.get_center() + DOWN * 3
             new_node.move_to(initial_position)
+            new_node.set_next(None, node1.row + 1, node1.row + 1)
 
-            node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+            basic_arrow = Arrow(
+                start = node1.get_bottom(),
+                end = new_node.get_top(),
+                tip_length = 0.2,
+                buff=0.1
+            )
 
             self.play(
                 FadeIn(new_node),
+                FadeIn(new_node.next_arrow),
+                Transform(node1.next_arrow, basic_arrow),
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
-
-            self.play(FadeIn(node1.next_arrow))
             
             shifts = []
 
@@ -180,6 +194,7 @@ class LinkedListStaticScene(MovingCameraScene):
                     shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                 
             shifts.append(new_node.animate.shift(UP * 1.5))
+            shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
 
             self.play(
                 *shifts 
@@ -189,19 +204,31 @@ class LinkedListStaticScene(MovingCameraScene):
             if node1.row % 2 != 0:
                 initial_position = node1.get_center() + LEFT * 2         
                 new_node.move_to(initial_position)
-                node1.next_arrow = node1.set_next(new_node, 1, 1)
+                new_node.set_next(None, node1.row, node1.row)
+                basic_arrow = Arrow(
+                    start = node1.get_left(),
+                    end = new_node.get_right(),
+                    tip_length = 0.2,
+                    buff=0.1
+                )
             #if tail is even row
             else:
                 initial_position = node1.get_center() + RIGHT * 2
                 new_node.move_to(initial_position)
-                node1.next_arrow = node1.set_next(new_node, 0, 0)
+                new_node.set_next(None, node1.row, node1.row)
+                basic_arrow = Arrow(
+                    start = node1.get_right(),
+                    end = new_node.get_left(),
+                    tip_length = 0.2,
+                    buff=0.1
+                )
 
             self.play(
                 FadeIn(new_node),
+                FadeIn(new_node.next_arrow),
+                Transform(node1.next_arrow, basic_arrow),
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
-
-            self.play(FadeIn(node1.next_arrow),)
         
         if len(nodes) < 10:
             # Shift simultaneously
@@ -214,6 +241,7 @@ class LinkedListStaticScene(MovingCameraScene):
                     shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                 
             shifts.append(new_node.animate.shift(LEFT * 1))
+            shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
 
             self.play(
                 *shifts 
@@ -568,9 +596,9 @@ class LinkedListStaticScene(MovingCameraScene):
             )
         else:  
             if node1.row % 2 == 0:
-                node_closeup.shift(node2_closeup.get_right() + DOWN * 0.6 + RIGHT * 1.5)
+                node_closeup.shift(node2_closeup.get_right() + RIGHT * 1.5)
             else:
-                node_closeup.shift(node2_closeup.get_left() + DOWN * 0.6 + LEFT * 1.5)
+                node_closeup.shift(node2_closeup.get_left() + LEFT * 1.5)
             node2_closeup.next_arrow = node2_closeup.set_next(node_closeup, node2_closeup.row, node2_closeup.row)
 
         self.play(
