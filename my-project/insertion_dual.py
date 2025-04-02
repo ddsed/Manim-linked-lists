@@ -105,7 +105,21 @@ class DualScene(Scene):
                     arrow_left = nodes_left[i - 1].set_next(left_node, (i - 1) // 10, i // 10)
                     arrow_right = nodes_right[i - 1].set_next(right_node, (i - 1) // 10, i // 10)
                     self.play(FadeIn(arrow_left, run_time=0.1), FadeIn(arrow_right, run_time=0.1))
-
+        
+        # Last null pointer logic
+        last_node = nodes_left[-1]
+        last_node_shift = nodes_right[-1]
+        if len(nodes_left) in [10, 20]:
+            last_node.set_next(None, last_node.row, last_node.row + 1)
+            last_node_shift.set_next(None, last_node.row, last_node.row + 1)
+        else:
+            last_node.set_next(None, last_node.row, last_node.row)
+            last_node_shift.set_next(None, last_node.row, last_node.row)
+        self.play(
+            FadeIn(last_node.next_arrow, run_time=0.1),
+            FadeIn(last_node_shift.next_arrow, run_time=0.1)
+        )
+        
         self.wait(1)
 
     # Creates arrows for memory units
@@ -283,15 +297,20 @@ class DualScene(Scene):
             if idx1 == 9 or idx1 == 19:
                 initial_position = node1.get_center() + DOWN * 3
                 new_node.move_to(initial_position)
+                new_node.set_next(None, node1.row + 1, node1.row + 1)
 
-                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
-
+                basic_arrow = Arrow(
+                    start = node1.get_bottom(),
+                    end = new_node.get_top(),
+                    tip_length = 0.2,
+                    buff=0.1
+                )
                 self.play(
                     FadeIn(new_node),
+                    FadeIn(new_node.next_arrow),
+                    Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
-
-                self.play(FadeIn(node1.next_arrow))
                 
                 shifts = []
 
@@ -302,6 +321,7 @@ class DualScene(Scene):
                         shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                  
                 shifts.append(new_node.animate.shift(UP * 1.5))
+                shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
 
                 self.play(
                     *shifts 
@@ -311,19 +331,31 @@ class DualScene(Scene):
                 if node1.row % 2 != 0:
                     initial_position = node1.get_center() + LEFT * 2         
                     new_node.move_to(initial_position)
-                    node1.next_arrow = node1.set_next(new_node, 1, 1)
+                    new_node.set_next(None, node1.row, node1.row)
+                    basic_arrow = Arrow(
+                        start = node1.get_left(),
+                        end = new_node.get_right(),
+                        tip_length = 0.2,
+                        buff=0.1
+                    )
                 #if tail is even row
                 else:
                     initial_position = node1.get_center() + RIGHT * 2
                     new_node.move_to(initial_position)
-                    node1.next_arrow = node1.set_next(new_node, 0, 0)
+                    new_node.set_next(None, node1.row, node1.row)
+                    basic_arrow = Arrow(
+                        start = node1.get_right(),
+                        end = new_node.get_left(),
+                        tip_length = 0.2,
+                        buff=0.1
+                    )
 
                 self.play(
                     FadeIn(new_node),
+                    FadeIn(new_node.next_arrow),
+                    Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
-
-                self.play(FadeIn(node1.next_arrow),)
             
             if len(linked_list.nodes) < 10:
                 # Shift simultaneously
@@ -336,6 +368,7 @@ class DualScene(Scene):
                         shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                  
                 shifts.append(new_node.animate.shift(LEFT * 1))
+                shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
 
                 self.play(
                     *shifts 
