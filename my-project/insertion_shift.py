@@ -198,24 +198,32 @@ class LinkedListShiftScene(MovingCameraScene):
         if idx1 == 9 or idx1 == 19:
             initial_position = node1.get_center() + DOWN * 3
             new_node.move_to(initial_position)
+            new_node.set_next(None, node1.row + 1, node1.row + 1)
 
-            node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+            basic_arrow = Arrow (
+                start = node1.get_bottom(),
+                end = new_node.get_top(),
+                tip_length = 0.2,
+                buff=0.1
+            )
 
             self.play(
                 FadeIn(new_node),
-                FadeIn(node1.next_arrow),
+                FadeIn(new_node.next_arrow),
+                Transform(node1.next_arrow, basic_arrow),
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
 
             shifts = []
 
-            # Nodes shift left by 1 unit + their arrows
+            # Nodes shift up + their arrows to be centered
             for node in nodes: 
                 shifts.append(node.animate.shift(UP * 1.5))
                 if node.next_arrow:
                     shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                 
             shifts.append(new_node.animate.shift(UP * 1.5))
+            shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
 
             self.play(
                 *shifts 
@@ -225,8 +233,9 @@ class LinkedListShiftScene(MovingCameraScene):
             if node1.row % 2 != 0:
                 initial_position = node1.get_left() + DOWN * 1.55
                 new_node.move_to(initial_position)
+                new_node.set_next(None, node1.row, node1.row)
 
-                node1.next_arrow = CurvedArrow(
+                basic_arrow = CurvedArrow(
                     start_point=node1.get_bottom() + DOWN * 0.1, 
                     end_point=new_node.get_right() + RIGHT * 0.1,
                     angle=-TAU/4, 
@@ -242,19 +251,22 @@ class LinkedListShiftScene(MovingCameraScene):
 
                 self.play(
                     FadeIn(new_node),
-                    FadeIn(node1.next_arrow),
+                    FadeIn(new_node.next_arrow),
+                    Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
                 self.play(
                     new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                    new_node.next_arrow.animate.move_to(node1.get_left() + LEFT * 2.5),
                     Transform(node1.next_arrow, transformed_arrow)
                 )
             #if tail is even row
             else:
                 initial_position = node1.get_right() + DOWN * 1.55
                 new_node.move_to(initial_position)
+                new_node.set_next(None, node1.row, node1.row)
 
-                node1.next_arrow = CurvedArrow(
+                basic_arrow = CurvedArrow(
                     start_point=node1.get_bottom() + DOWN * 0.1, 
                     end_point=new_node.get_left() + LEFT * 0.1,
                     tip_length=0.2
@@ -269,12 +281,14 @@ class LinkedListShiftScene(MovingCameraScene):
 
                 self.play(
                     FadeIn(new_node),
-                    FadeIn(node1.next_arrow),
+                    FadeIn(new_node.next_arrow),
+                    Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
 
                 self.play(
                     new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                    new_node.next_arrow.animate.move_to(node1.get_right() + RIGHT * 2.5),
                     Transform(node1.next_arrow, transformed_arrow)
                 )
             
@@ -289,6 +303,7 @@ class LinkedListShiftScene(MovingCameraScene):
                     shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                 
             shifts.append(new_node.animate.shift(LEFT * 1))
+            shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
 
             self.play(
                 *shifts 
