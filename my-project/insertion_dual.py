@@ -33,8 +33,8 @@ class DualScene(Scene):
         memory_line = MemoryUnitsVGroup(node_values)
 
         # Position the left linked list group to the left of the center
-        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + UP * 5.3)
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + UP * 5.3) 
+        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + LEFT * 0.25 + UP * 5.3)
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4)  + LEFT * 0.25 + UP * 5.3) 
         memory_line.move_to(ORIGIN + DOWN * 2.2)
 
         title = Text("Linked List: levels of abstraction", font_size=50)
@@ -331,7 +331,10 @@ class DualScene(Scene):
                 if node1.row % 2 != 0:
                     initial_position = node1.get_center() + LEFT * 2         
                     new_node.move_to(initial_position)
-                    new_node.set_next(None, node1.row, node1.row)
+                    if idx1 == 18:
+                        new_node.set_next(None, 0, 1)
+                    else:
+                        new_node.set_next(None, node1.row, node1.row)
                     basic_arrow = Arrow(
                         start = node1.get_left(),
                         end = new_node.get_right(),
@@ -342,7 +345,10 @@ class DualScene(Scene):
                 else:
                     initial_position = node1.get_center() + RIGHT * 2
                     new_node.move_to(initial_position)
-                    new_node.set_next(None, node1.row, node1.row)
+                    if idx1 == 8:
+                        new_node.set_next(None, 0, 1)
+                    else:
+                        new_node.set_next(None, node1.row, node1.row)
                     basic_arrow = Arrow(
                         start = node1.get_right(),
                         end = new_node.get_left(),
@@ -358,17 +364,21 @@ class DualScene(Scene):
                 )
             
             if len(linked_list.nodes) < 10:
+                if len(linked_list.nodes) < 9:
+                    shift = LEFT * 1
+                else:
+                    shift = LEFT * 0.5
                 # Shift simultaneously
                 shifts = []
 
                 # Nodes shift left by 1 unit + their arrows
                 for node in linked_list.nodes: 
-                    shifts.append(node.animate.shift(LEFT * 1))
+                    shifts.append(node.animate.shift(shift))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                        shifts.append(node.next_arrow.animate.shift(shift))
                  
-                shifts.append(new_node.animate.shift(LEFT * 1))
-                shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
+                shifts.append(new_node.animate.shift(shift))
+                shifts.append(new_node.next_arrow.animate.shift(shift))
 
                 self.play(
                     *shifts 
@@ -399,12 +409,18 @@ class DualScene(Scene):
             if idx1 == 9 or idx1 == 19:
                 initial_position = node1.get_center() + DOWN * 3
                 new_node.move_to(initial_position)
-
-                node1.next_arrow = node1.set_next(new_node, node1.row, new_node.row)
+                new_node.set_next(None, node1.row + 1, node1.row + 1)
+                basic_arrow = Arrow (
+                    start = node1.get_bottom(),
+                    end = new_node.get_top(),
+                    tip_length = 0.2,
+                    buff=0.1
+                )
 
                 self.play(
                     FadeIn(new_node),
-                    FadeIn(node1.next_arrow),
+                    FadeIn(new_node.next_arrow),
+                    Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
 
@@ -417,7 +433,8 @@ class DualScene(Scene):
                         shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                  
                 shifts.append(new_node.animate.shift(UP * 1.5))
-
+                shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
+                
                 self.play(
                     *shifts 
                 )
@@ -426,8 +443,9 @@ class DualScene(Scene):
                 if node1.row % 2 != 0:
                     initial_position = node1.get_left() + DOWN * 1.55
                     new_node.move_to(initial_position)
+                    new_node.set_next(None, node1.row, node1.row)
 
-                    node1.next_arrow = CurvedArrow(
+                    basic_arrow = CurvedArrow(
                         start_point=node1.get_bottom() + DOWN * 0.1, 
                         end_point=new_node.get_right() + RIGHT * 0.1,
                         angle=-TAU/4, 
@@ -443,19 +461,43 @@ class DualScene(Scene):
 
                     self.play(
                         FadeIn(new_node),
-                        FadeIn(node1.next_arrow),
+                        FadeIn(new_node.next_arrow),
+                        Transform(node1.next_arrow, basic_arrow),
                         new_node.box.animate.set_fill(GREEN_E, opacity=1)
                     )
                     self.play(
                         new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                        new_node.next_arrow.animate.move_to(node1.get_left() + LEFT * 2.5),
                         Transform(node1.next_arrow, transformed_arrow)
                     )
+
+                    if idx1 == 18:
+                        new_last_arow = Arrow(
+                            start = node1.get_bottom() + LEFT * 2, 
+                            end = node1.get_bottom() + LEFT * 2 + DOWN * 1,
+                            buff=0.1,
+                            tip_length=0.2,
+                            tip_shape=ArrowCircleFilledTip,
+                            color=WHITE
+                        )
+                        self.play(
+                            new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                            Transform(new_node.next_arrow, new_last_arow),
+                            Transform(node1.next_arrow, transformed_arrow)
+                        )
+                    else:
+                        self.play(
+                            new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                            new_node.next_arrow.animate.move_to(node1.get_left() + LEFT * 2.5),
+                            Transform(node1.next_arrow, transformed_arrow)
+                        )
                 #if tail is even row
                 else:
                     initial_position = node1.get_right() + DOWN * 1.55
                     new_node.move_to(initial_position)
+                    new_node.set_next(None, node1.row, node1.row)
 
-                    node1.next_arrow = CurvedArrow(
+                    basic_arrow = CurvedArrow(
                         start_point=node1.get_bottom() + DOWN * 0.1, 
                         end_point=new_node.get_left() + LEFT * 0.1,
                         tip_length=0.2
@@ -470,27 +512,49 @@ class DualScene(Scene):
 
                     self.play(
                         FadeIn(new_node),
-                        FadeIn(node1.next_arrow),
+                        FadeIn(new_node.next_arrow),
+                        Transform(node1.next_arrow, basic_arrow),
                         new_node.box.animate.set_fill(GREEN_E, opacity=1)
                     )
 
-                    self.play(
-                        new_node.animate.move_to(node1.get_center() + RIGHT * 2),
-                        Transform(node1.next_arrow, transformed_arrow)
-                    )
+                    if idx1 == 8:
+                        new_last_arow = Arrow(
+                            start = node1.get_bottom() + RIGHT * 2, 
+                            end = node1.get_bottom() + RIGHT * 2 + DOWN * 1,
+                            buff=0.1,
+                            tip_length=0.2,
+                            tip_shape=ArrowCircleFilledTip,
+                            color=WHITE
+                        )
+                        self.play(
+                            new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                            Transform(new_node.next_arrow, new_last_arow),
+                            Transform(node1.next_arrow, transformed_arrow)
+                        )
+                    else:
+                        self.play(
+                            new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                            new_node.next_arrow.animate.move_to(node1.get_right() + RIGHT * 2.5),
+                            Transform(node1.next_arrow, transformed_arrow)
+                        )
                 
             if len(linked_list_shift.nodes) < 10:
+                if len(linked_list_shift.nodes) < 9:
+                    shift = LEFT * 1
+                else:
+                    shift = LEFT * 0.5
                 # Shift simultaneously before manipulation
                 shifts = []
 
                 # Nodes shift left by 1 unit + their arrows
                 for node in linked_list_shift.nodes: 
-                    shifts.append(node.animate.shift(LEFT * 1))
+                    shifts.append(node.animate.shift(shift))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                        shifts.append(node.next_arrow.animate.shift(shift))
                  
-                shifts.append(new_node.animate.shift(LEFT * 1))
-
+                shifts.append(new_node.animate.shift(shift))
+                shifts.append(new_node.next_arrow.animate.shift(shift))
+                
                 self.play(
                     *shifts 
                 )
@@ -595,7 +659,6 @@ class DualScene(Scene):
                 FadeIn(new_node.next_arrow),
                 run_time=0.8
             )
-     # Handles shifting tail insertion
     
     # Handles shifting basic insertion
     def insert_node_row_shift(self, linked_list_shift, idx1, idx2, new_value):
@@ -619,25 +682,36 @@ class DualScene(Scene):
                 return
 
             if len(linked_list_shift.nodes) < 10:
+                if len(linked_list_shift.nodes) < 9:
+                    shift_left = LEFT * 1
+                    shift_right = RIGHT * 1
+                else:
+                    shift_left = LEFT * 0.5
+                    shift_right = RIGHT * 1.5
                 # Shift simultaneously before manipulation
                 shifts = []
 
                 # Nodes from the first node to node1 left by 1 unit + their arrows
                 for node in linked_list_shift.nodes[:linked_list_shift.nodes.index(node1) + 1]: 
-                    shifts.append(node.animate.shift(LEFT * 1))
+                    shifts.append(node.animate.shift(shift_left))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1)) 
+                        shifts.append(node.next_arrow.animate.shift(shift_left)) 
 
                 # Nodes from node2 to the last node right by 1 unit + their arrows
                 for node in linked_list_shift.nodes[linked_list_shift.nodes.index(node2):]: 
-                    shifts.append(node.animate.shift(RIGHT * 1))
+                    shifts.append(node.animate.shift(shift_right))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
-                
+                        if linked_list_shift.nodes.index(node) == 8:
+                            shifts.append(node.next_arrow.animate.put_start_and_end_on(
+                                node.get_bottom() + shift_right + DOWN * 0.1,
+                                node.get_bottom() + shift_right + DOWN * 1
+                            ))
+                        else:
+                            shifts.append(node.next_arrow.animate.shift(shift_right))
                 # New stretched arrow
                 long_arrow = Arrow (
-                    start=node1.get_right() + LEFT * 1, 
-                    end=node2.get_left() + RIGHT * 1,
+                    start=node1.get_right() + shift_left, 
+                    end=node2.get_left() + shift_right,
                     tip_length=0.2,
                     buff=0.1 
                 )
@@ -1217,32 +1291,57 @@ def shift_nodes_to_the_right(nodes, idx2):
                 shifts.append(node_i.next_arrow.animate.shift(RIGHT * 2))
             # From even line to odd line to become long arrow
             elif i == 8 or i == 28:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
+                        node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                    ))
             # From even line to odd line to become short arrow
             elif i == 9 or i == 29:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + DOWN * 3 + LEFT * 0.1,
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                ))
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_left() + DOWN * 3 + LEFT * 0.1,
+                        node_i.get_left() + DOWN * 3 + LEFT * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_left() + DOWN * 3 + LEFT * 0.1,
+                        node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
+                    ))
             # From odd line to even line to become long arrow
-            elif i == 18 or i == 38:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
+            elif i == 18:
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
+                        node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                    ))
             # From odd line to even line to become short arrow
-            elif i == 19 or i == 39:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
-                    node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1
-                ))
+            elif i == 19:
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
+                        node_i.get_right() + DOWN * 3 + RIGHT * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
+                        node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1
+                    ))
             # For odd lines
             else:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + LEFT * 2 + LEFT * 0.1,
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                ))
+                shifts.append(node_i.next_arrow.animate.shift(LEFT * 2))
     return shifts
