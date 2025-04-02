@@ -255,7 +255,7 @@ class MemoryLineScene(Scene):
             ]
         )
 
-        # Creating an arrow to a new node
+        # Creating an arrow to a new node and null pointer
         node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN)
         node_tail.next_arrow.set_stroke(width=10)
         self.play(FadeOut(arrows[-1]), FadeIn(node_tail.next_arrow))

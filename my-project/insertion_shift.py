@@ -87,6 +87,14 @@ class LinkedListShiftScene(MovingCameraScene):
                     arrow = nodes[i - 1].set_next(node, (i - 1) // 10, i // 10)
                     self.play(FadeIn(arrow, run_time=0.1))
 
+        # Last null pointer logic
+        last_node = nodes[-1]
+        if len(nodes) in [10, 20]:
+            last_node.set_next(None, last_node.row, last_node.row + 1)
+        else:
+            last_node.set_next(None, last_node.row, last_node.row)
+        self.play(FadeIn(last_node.next_arrow, run_time=0.1))
+
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter):
         #Determines the correct method for inserting a node and calls it.
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
