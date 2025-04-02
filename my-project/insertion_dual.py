@@ -33,8 +33,8 @@ class DualScene(Scene):
         memory_line = MemoryUnitsVGroup(node_values)
 
         # Position the left linked list group to the left of the center
-        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + LEFT * 0.25 + UP * 5.3)
-        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4)  + LEFT * 0.25 + UP * 5.3) 
+        linked_list.move_to(ORIGIN + LEFT * (self.camera.frame_width / 4) + LEFT * 0.2 + UP * 5.3)
+        linked_list_shift.move_to(ORIGIN + RIGHT * (self.camera.frame_width / 4) + LEFT * 0.25 + UP * 5.3) 
         memory_line.move_to(ORIGIN + DOWN * 2.2)
 
         title = Text("Linked List: levels of abstraction", font_size=50)
@@ -135,6 +135,14 @@ class DualScene(Scene):
                 # Set the next arrow
                 arrow = start_node.set_next(next_node, arrow_type=CurvedArrow, color=WHITE)
                 arrows.add(arrow)
+
+        # Create a dot arrow for the last node
+        last_node = memory_line.original_nodes[-1]
+        dot_arrow = Circle(radius=0.1)
+        dot_arrow.set_color(WHITE)
+        dot_arrow.set_fill(WHITE, opacity=1)
+        dot_arrow.move_to(last_node.get_bottom() + RIGHT * 0.25 + [0, 0.5, 0])
+        arrows.add(dot_arrow)
 
         for i, arrow in enumerate(arrows):
         # Slower speed for the first 5 arrows
@@ -364,21 +372,17 @@ class DualScene(Scene):
                 )
             
             if len(linked_list.nodes) < 10:
-                if len(linked_list.nodes) < 9:
-                    shift = LEFT * 1
-                else:
-                    shift = LEFT * 0.5
                 # Shift simultaneously
                 shifts = []
 
                 # Nodes shift left by 1 unit + their arrows
                 for node in linked_list.nodes: 
-                    shifts.append(node.animate.shift(shift))
+                    shifts.append(node.animate.shift(LEFT * 1))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(shift))
+                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
                  
-                shifts.append(new_node.animate.shift(shift))
-                shifts.append(new_node.next_arrow.animate.shift(shift))
+                shifts.append(new_node.animate.shift(LEFT * 1))
+                shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
 
                 self.play(
                     *shifts 
@@ -1046,7 +1050,7 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -1093,7 +1097,7 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow
+                if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -1131,7 +1135,7 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow
+                if arrow is not new_node.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
@@ -1152,7 +1156,7 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not new_node.next_arrow
+                if arrow is not new_node.next_arrow and not isinstance(arrow, Circle)
             ]
         )
         
@@ -1191,14 +1195,16 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=0.35)
             )
             for arrow in arrows 
-                if arrow is not node_tail.next_arrow
+                if arrow is not node_tail.next_arrow and not isinstance(arrow, Circle)
             ] 
         )
 
-        # Creating an arrow to a new node
+        # Creating an arrow to a new node and null pointer
         node_tail.next_arrow = node_tail.set_next(new_node, CurvedArrow, color=GREEN)
         node_tail.next_arrow.set_stroke(width=10)
-        self.play(FadeIn(node_tail.next_arrow))
+        self.play(FadeOut(arrows[-1]), FadeIn(node_tail.next_arrow))
+        arrows[-1].move_to(new_node.get_bottom() + RIGHT * 0.25 + [0, 0.5, 0])
+        self.play(FadeIn(arrows[-1]))
 
         self.wait(1)
 
@@ -1212,7 +1218,7 @@ class DualScene(Scene):
                 arrow.tip.animate.set_fill(opacity=1)
             )
             for arrow in arrows 
-                if arrow is not node_tail.next_arrow
+                if arrow is not node_tail.next_arrow and not isinstance(arrow, Circle)
             ]
         )
 
