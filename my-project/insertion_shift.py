@@ -770,17 +770,23 @@ class LinkedListShiftScene(MovingCameraScene):
                     buff=0.1 
                 )
 
+                if idx1 == 8:
+                    end_point = node_closeup.get_bottom() + DOWN * 4
+                    node2_animation = node2_closeup.animate.move_to(node_closeup.get_bottom() + DOWN * 4)
+                else:
+                    end_point = node_closeup.next_arrow.get_end() + RIGHT * 0.2
+                    node2_animation = node2_closeup.animate.shift(RIGHT * 0.1)
+                
                 new_arrow_from = Arrow(
                     start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + LEFT * 0.1, 
-                    end=node_closeup.next_arrow.get_end() + RIGHT * 0.2,
+                    end=end_point,
                     tip_length=0.2,
                     buff=0.1 
                 )
-
                 self.play(
                     node_closeup.animate.shift(DOWN * 0.6),
                     node1_closeup.animate.shift(LEFT * 0.1),
-                    node2_closeup.animate.shift(RIGHT * 0.1),
+                    node2_animation,
                     Transform(node1_closeup.next_arrow, new_arrow_to),
                     Transform(node_closeup.next_arrow, new_arrow_from)
                 )
@@ -793,9 +799,16 @@ class LinkedListShiftScene(MovingCameraScene):
                     buff=0.1 
                 )
 
+                if idx1 == 18:
+                    end_point = node_closeup.get_bottom() + DOWN * 4
+                    node2_animation = node2_closeup.animate.move_to(node_closeup.get_bottom() + DOWN * 4)
+                else:
+                    end_point = node_closeup.next_arrow.get_end() + LEFT * 0.2
+                    node2_animation = node2_closeup.animate.shift(LEFT * 0.1),
+
                 new_arrow_from = Arrow(
                     start=node_closeup.next_arrow.get_start() + DOWN * 0.6 + RIGHT * 0.1, 
-                    end=node_closeup.next_arrow.get_end() + LEFT * 0.2,
+                    end=end_point,
                     tip_length=0.2,
                     buff=0.1 
                 )
@@ -803,7 +816,7 @@ class LinkedListShiftScene(MovingCameraScene):
                 self.play(
                     node_closeup.animate.shift(DOWN * 0.6),
                     node1_closeup.animate.shift(RIGHT * 0.1),
-                    node2_closeup.animate.shift(LEFT * 0.1),
+                    node2_animation,
                     Transform(node1_closeup.next_arrow, new_arrow_to),
                     Transform(node_closeup.next_arrow, new_arrow_from)
                 )
