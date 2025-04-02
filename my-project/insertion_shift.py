@@ -330,7 +330,13 @@ class LinkedListShiftScene(MovingCameraScene):
             for node in nodes[nodes.index(node2):]: 
                 shifts.append(node.animate.shift(RIGHT * 1))
                 if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
+                    if nodes.index(node) == 8:
+                        shifts.append(node.next_arrow.animate.put_start_and_end_on(
+                            node.get_bottom() + RIGHT * 1 + DOWN * 0.1,
+                            node.get_bottom() + RIGHT * 1 + DOWN * 1
+                        ))
+                    else:
+                        shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
             
             # New stretched arrow
             long_arrow = Arrow (
@@ -950,32 +956,57 @@ def shift_nodes_to_the_right(nodes, idx2):
                 shifts.append(node_i.next_arrow.animate.shift(RIGHT * 2))
             # From even line to odd line to become long arrow
             elif i == 8 or i == 28:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + RIGHT * 2 + DOWN * 0.1,
+                        node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                    ))
             # From even line to odd line to become short arrow
             elif i == 9 or i == 29:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + DOWN * 3 + LEFT * 0.1,
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                ))
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_left() + DOWN * 3 + LEFT * 0.1,
+                        node_i.get_left() + DOWN * 3 + LEFT * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_left() + DOWN * 3 + LEFT * 0.1,
+                        node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
+                    ))
             # From odd line to even line to become long arrow
-            elif i == 18 or i == 38:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
-                    node_i_next.get_top() + DOWN * 3 + UP * 0.1
-                ))
+            elif i == 18:
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_bottom() + LEFT * 2 + DOWN * 0.1,
+                        node_i_next.get_top() + DOWN * 3 + UP * 0.1
+                    ))
             # From odd line to even line to become short arrow
-            elif i == 19 or i == 39:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
-                    node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1
-                ))
+            elif i == 19:
+                # Last node pointer
+                if i == len(nodes) - 1:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
+                        node_i.get_right() + DOWN * 3 + RIGHT * 1
+                    ))
+                else:
+                    shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
+                        node_i.get_right() + DOWN * 3 + RIGHT * 0.1,
+                        node_i_next.get_left() + RIGHT * 2 + LEFT * 0.1
+                    ))
             # For odd lines
             else:
-                shifts.append(node_i.next_arrow.animate.put_start_and_end_on(
-                    node_i.get_left() + LEFT * 2 + LEFT * 0.1,
-                    node_i_next.get_right() + LEFT * 2 + RIGHT * 0.1
-                ))
+                shifts.append(node_i.next_arrow.animate.shift(LEFT * 2))
     return shifts
