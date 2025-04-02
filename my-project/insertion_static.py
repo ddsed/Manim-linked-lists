@@ -58,7 +58,10 @@ class LinkedListStaticScene(MovingCameraScene):
             return
         
         leftmost = min(node.get_left()[0] for node in nodes)
-        rightmost = max(node.get_right()[0] for node in nodes)
+        if len(nodes) < 10:
+            rightmost = max(node.get_right()[0] + 1 for node in nodes)
+        else:
+            rightmost = max(node.get_right()[0] for node in nodes)
         topmost = max(node.get_top()[1] for node in nodes)
         bottommost = min(node.get_bottom()[1] for node in nodes)
 
@@ -204,7 +207,10 @@ class LinkedListStaticScene(MovingCameraScene):
             if node1.row % 2 != 0:
                 initial_position = node1.get_center() + LEFT * 2         
                 new_node.move_to(initial_position)
-                new_node.set_next(None, node1.row, node1.row)
+                if idx1 == 18:
+                    new_node.set_next(None, 0, 1)
+                else:
+                    new_node.set_next(None, node1.row, node1.row)
                 basic_arrow = Arrow(
                     start = node1.get_left(),
                     end = new_node.get_right(),
@@ -215,7 +221,10 @@ class LinkedListStaticScene(MovingCameraScene):
             else:
                 initial_position = node1.get_center() + RIGHT * 2
                 new_node.move_to(initial_position)
-                new_node.set_next(None, node1.row, node1.row)
+                if idx1 == 8:
+                    new_node.set_next(None, 0, 1)
+                else:
+                    new_node.set_next(None, node1.row, node1.row)
                 basic_arrow = Arrow(
                     start = node1.get_right(),
                     end = new_node.get_left(),
@@ -231,17 +240,21 @@ class LinkedListStaticScene(MovingCameraScene):
             )
         
         if len(nodes) < 10:
+            if len(nodes) < 9:
+                shift = LEFT * 1
+            else:
+                shift = LEFT * 0.5
             # Shift simultaneously
             shifts = []
 
             # Nodes shift left by 1 unit + their arrows
             for node in nodes: 
-                shifts.append(node.animate.shift(LEFT * 1))
+                shifts.append(node.animate.shift(shift))
                 if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                    shifts.append(node.next_arrow.animate.shift(shift))
                 
-            shifts.append(new_node.animate.shift(LEFT * 1))
-            shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
+            shifts.append(new_node.animate.shift(shift))
+            shifts.append(new_node.next_arrow.animate.shift(shift))
 
             self.play(
                 *shifts 

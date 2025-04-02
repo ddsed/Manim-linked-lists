@@ -57,7 +57,10 @@ class LinkedListShiftScene(MovingCameraScene):
             return
         
         leftmost = min(node.get_left()[0] for node in nodes)
-        rightmost = max(node.get_right()[0] for node in nodes)
+        if len(nodes) < 10:
+            rightmost = max(node.get_right()[0] + 1 for node in nodes)
+        else:
+            rightmost = max(node.get_right()[0] for node in nodes)
         topmost = max(node.get_top()[1] for node in nodes)
         bottommost = min(node.get_bottom()[1] for node in nodes)
 
@@ -156,17 +159,21 @@ class LinkedListShiftScene(MovingCameraScene):
             )
 
             if len(nodes) < 10:
+                if len(nodes) < 9:
+                    shift = LEFT * 1
+                else:
+                    shift = LEFT * 0.5
                 # Shift simultaneously after manipulation
                 shifts = []
 
                 # Nodes shift left by 1 unit + their arrows
                 for node in nodes: 
-                    shifts.append(node.animate.shift(LEFT * 1))
+                    shifts.append(node.animate.shift(shift))
                     if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                        shifts.append(node.next_arrow.animate.shift(shift))
                  
-                shifts.append(new_node.animate.shift(LEFT * 1))
-                shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
+                shifts.append(new_node.animate.shift(shift))
+                shifts.append(new_node.next_arrow.animate.shift(shift))
 
                 self.play(
                     *shifts 
@@ -255,11 +262,26 @@ class LinkedListShiftScene(MovingCameraScene):
                     Transform(node1.next_arrow, basic_arrow),
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
-                self.play(
-                    new_node.animate.move_to(node1.get_center() + LEFT * 2),
-                    new_node.next_arrow.animate.move_to(node1.get_left() + LEFT * 2.5),
-                    Transform(node1.next_arrow, transformed_arrow)
-                )
+                if idx1 == 18:
+                    new_last_arow = Arrow(
+                        start = node1.get_bottom() + LEFT * 2, 
+                        end = node1.get_bottom() + LEFT * 2 + DOWN * 1,
+                        buff=0.1,
+                        tip_length=0.2,
+                        tip_shape=ArrowCircleFilledTip,
+                        color=WHITE
+                    )
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                        Transform(new_node.next_arrow, new_last_arow),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
+                else:
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + LEFT * 2),
+                        new_node.next_arrow.animate.move_to(node1.get_left() + LEFT * 2.5),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
             #if tail is even row
             else:
                 initial_position = node1.get_right() + DOWN * 1.55
@@ -286,24 +308,42 @@ class LinkedListShiftScene(MovingCameraScene):
                     new_node.box.animate.set_fill(GREEN_E, opacity=1)
                 )
 
-                self.play(
-                    new_node.animate.move_to(node1.get_center() + RIGHT * 2),
-                    new_node.next_arrow.animate.move_to(node1.get_right() + RIGHT * 2.5),
-                    Transform(node1.next_arrow, transformed_arrow)
-                )
+                if idx1 == 8:
+                    new_last_arow = Arrow(
+                        start = node1.get_bottom() + RIGHT * 2, 
+                        end = node1.get_bottom() + RIGHT * 2 + DOWN * 1,
+                        buff=0.1,
+                        tip_length=0.2,
+                        tip_shape=ArrowCircleFilledTip,
+                        color=WHITE
+                    )
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                        Transform(new_node.next_arrow, new_last_arow),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
+                else:
+                    self.play(
+                        new_node.animate.move_to(node1.get_center() + RIGHT * 2),
+                        new_node.next_arrow.animate.move_to(node1.get_right() + RIGHT * 2.5),
+                        Transform(node1.next_arrow, transformed_arrow)
+                    )
             
         if len(nodes) < 10:
-            # Shift simultaneously before manipulation
+            if len(nodes) < 9:
+                shift = LEFT * 1
+            else:
+                shift = LEFT * 0.5
             shifts = []
 
             # Nodes shift left by 1 unit + their arrows
             for node in nodes: 
-                shifts.append(node.animate.shift(LEFT * 1))
+                shifts.append(node.animate.shift(shift))
                 if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(LEFT * 1))
+                    shifts.append(node.next_arrow.animate.shift(shift))
                 
-            shifts.append(new_node.animate.shift(LEFT * 1))
-            shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
+            shifts.append(new_node.animate.shift(shift))
+            shifts.append(new_node.next_arrow.animate.shift(shift))
 
             self.play(
                 *shifts 
@@ -332,31 +372,37 @@ class LinkedListShiftScene(MovingCameraScene):
             return
 
         if len(nodes) < 10:
+            if len(nodes) < 9:
+                shift_left = LEFT * 1
+                shift_right = RIGHT * 1
+            else:
+                shift_left = LEFT * 0.5
+                shift_right = RIGHT * 1.5
             # Shift simultaneously before manipulation
             shifts = []
 
             # Nodes from the first node to node1 left by 1 unit + their arrows
             for node in nodes[:nodes.index(node1) + 1]: 
-                shifts.append(node.animate.shift(LEFT * 1))
+                shifts.append(node.animate.shift(shift_left))
                 if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(LEFT * 1)) 
+                    shifts.append(node.next_arrow.animate.shift(shift_left)) 
 
             # Nodes from node2 to the last node right by 1 unit + their arrows
             for node in nodes[nodes.index(node2):]: 
-                shifts.append(node.animate.shift(RIGHT * 1))
+                shifts.append(node.animate.shift(shift_right))
                 if node.next_arrow:
                     if nodes.index(node) == 8:
                         shifts.append(node.next_arrow.animate.put_start_and_end_on(
-                            node.get_bottom() + RIGHT * 1 + DOWN * 0.1,
-                            node.get_bottom() + RIGHT * 1 + DOWN * 1
+                            node.get_bottom() + shift_right + DOWN * 0.1,
+                            node.get_bottom() + shift_right + DOWN * 1
                         ))
                     else:
-                        shifts.append(node.next_arrow.animate.shift(RIGHT * 1))
+                        shifts.append(node.next_arrow.animate.shift(shift_right))
             
             # New stretched arrow
             long_arrow = Arrow (
-                start=node1.get_right() + LEFT * 1, 
-                end=node2.get_left() + RIGHT * 1,
+                start=node1.get_right() + shift_left, 
+                end=node2.get_left() + shift_right,
                 tip_length=0.2,
                 buff=0.1 
             )
