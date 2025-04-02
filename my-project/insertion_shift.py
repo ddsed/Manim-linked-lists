@@ -431,12 +431,6 @@ class LinkedListShiftScene(MovingCameraScene):
                         tip_length=0.2,
                         buff=0.1
                     )
-        # Displaying stretching the arrow simultaneously with shifting
-        self.play(
-            *shifts, 
-            Transform(node1.next_arrow, long_arrow),
-            run_time=1 
-        )
 
         # Create the new node to insert
         new_node = LinkedListNodeBasic(new_value)
@@ -445,25 +439,41 @@ class LinkedListShiftScene(MovingCameraScene):
         elif idx1 == 18:
             initial_position = node1.get_center() + LEFT * 2
         else:
-            initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
-        
-        new_node.move_to(initial_position)
+            pass
         
         if idx1 == 8 or idx1 == 18:
-            new_node.next_arrow = new_node.set_next(node2, 1, 2)
+            new_node.move_to(initial_position)
+            new_node.next_arrow = Arrow(
+                start=new_node.get_bottom(), 
+                end=new_node.get_bottom() + DOWN * 2,
+                tip_length=0.2,
+                buff=0.1
+            )
+            # Displaying stretching the arrow simultaneously with shifting + new node appears
             self.play(
+                *shifts, 
+                Transform(node1.next_arrow, long_arrow),
                 FadeIn(new_node.next_arrow),
                 FadeIn(new_node), 
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                new_node.box.animate.set_fill(GREEN_E, opacity=1),
+                run_time=1 
             )
         else:
+            # Displaying stretching the arrow simultaneously with shifting
+            self.play(
+                *shifts, 
+                Transform(node1.next_arrow, long_arrow),
+                run_time=1 
+            )
+            initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
+            new_node.move_to(initial_position)
             self.play(
                 FadeIn(new_node), 
                 new_node.box.animate.set_fill(GREEN_E, opacity=1)
             )
 
         # Arrow to a new node
-        # Logic for either 1 l ine, or even lines 
+        # Logic for either 1 line, or even lines 
         if len(nodes) < 10 or node2.row % 2 == 0:
             arrow_to_new = Arrow(
                 start=long_arrow.get_start(), 
