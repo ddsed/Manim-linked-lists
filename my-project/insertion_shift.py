@@ -203,10 +203,6 @@ class LinkedListShiftScene(MovingCameraScene):
         )
 
         self.play(FadeOut(textfunc))
-
-        if not node1:
-            print("Error: Specified nodes not found in the list.")
-            return
         
         new_node = LinkedListNodeBasic(new_value)
 
@@ -232,11 +228,13 @@ class LinkedListShiftScene(MovingCameraScene):
 
             shifts = []
 
+            shifts.append(headtext.animate.shift(UP * 1.5))
+            shifts.append(headarrow.animate.shift(UP * 1.5))
+
             # Nodes shift up + their arrows to be centered
             for node in nodes: 
                 shifts.append(node.animate.shift(UP * 1.5))
-                if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                 
             shifts.append(new_node.animate.shift(UP * 1.5))
             shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
@@ -350,6 +348,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
         textfunc.to_edge(UP).shift(UP * 1)
+        
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             node2.box.animate.set_fill(GREEN, opacity=0.35),
@@ -357,10 +356,6 @@ class LinkedListShiftScene(MovingCameraScene):
         )
 
         self.play(FadeOut(textfunc))
-
-        if not node1 or not node2:
-            print("Error: Specified nodes not found in the list.")
-            return
 
         if len(nodes) < 10:
             if len(nodes) < 9:
@@ -559,10 +554,6 @@ class LinkedListShiftScene(MovingCameraScene):
         )
 
         self.play(FadeOut(textfunc))
-
-        if not node1 or not node2:
-            print("Error: Specified nodes not found in the list.")
-            return
         
         # Identify affected nodes for shifting to make space for insertion
         nodes_above = [n for n in nodes if n.row <= node1.row]  # Rows before insertion
@@ -1043,6 +1034,7 @@ def shift_nodes_small(scene, nodes, new_node, headtext, headarrow):
 
     shifts.append(headtext.animate.shift(shift))
     shifts.append(headarrow.animate.shift(shift))
+
     for node in nodes:
         shifts.append(node.animate.shift(shift))
         if node.next_arrow:

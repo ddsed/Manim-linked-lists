@@ -53,7 +53,7 @@ class DualScene(Scene):
 
         # Perform insertion animation
         self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter, linked_list.headtext, linked_list.headarrow)
-        self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
+        self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter, linked_list_shift.headtext, linked_list_shift.headarrow)
 
         if insert_idx2 == 0:
             updated_original_nodes = self.insert_memory_unit_head(memory_line, insert_idx2, new_letter, arrows)
@@ -154,15 +154,15 @@ class DualScene(Scene):
             self.insert_node_row(linked_list, insert_idx1, insert_idx2, new_letter)
     
     # Determines the correct method for inserting a node with shifting
-    def insert_node_shift(self, linked_list_shift, insert_idx1, insert_idx2, new_letter):
+    def insert_node_shift(self, linked_list_shift, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
         if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(linked_list_shift.nodes) - 1:
-            self.insert_node_inbetween_lines_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
+            self.insert_node_inbetween_lines_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx2 == 0:
-            self.insert_node_head_shift(linked_list_shift, insert_idx2, new_letter)
+            self.insert_node_head_shift(linked_list_shift, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx1 == len(linked_list_shift.nodes) - 1:
-            self.insert_node_tail_shift(linked_list_shift, insert_idx1, new_letter)
+            self.insert_node_tail_shift(linked_list_shift, insert_idx1, new_letter, headtext, headarrow)
         else:
-            self.insert_node_row_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
+            self.insert_node_row_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
 
     # Handles static head insertion 
     def insert_node_head(self, linked_list, idx2, new_value, headtext, headarrow):
@@ -207,7 +207,7 @@ class DualScene(Scene):
             )
 
     # Handles shifting head insertion 
-    def insert_node_head_shift(self, linked_list_shift, idx2, new_value):
+    def insert_node_head_shift(self, linked_list_shift, idx2, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list_shift.nodes[idx2]     
 
@@ -220,10 +220,6 @@ class DualScene(Scene):
             )
 
             self.play(FadeOut(textfunc))
-
-            if not node2:
-                print("Error: Specified nodes not found in the list.")
-                return
             
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
@@ -245,33 +241,38 @@ class DualScene(Scene):
             
             shifts = shift_nodes_to_the_right(linked_list_shift.nodes, idx2)
 
+            headarrow_updated = Arrow(
+                start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
+                end=new_node.get_right(),
+                tip_length=0.2,
+                buff=0.1
+            )
+
             self.play(
                 FadeIn(new_node),
                 FadeIn(new_node.next_arrow),
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                new_node.box.animate.set_fill(GREEN_E, opacity=1),
+                headtext.animate.shift(RIGHT * 2 + DOWN * 0.05),
+                Transform(headarrow, headarrow_updated)
             )
+
+            headarrow_initial = Arrow(
+                start=headtext.get_bottom() + LEFT * 2 + + UP * 0.05,
+                end=node2.get_top(),
+                tip_length=0.2,
+                buff=0.1
+            )
+
             self.play(
                 *shifts,
                 new_node.animate.move_to(node2.get_center()),
-                Transform(new_node.next_arrow, transformed_arrow)
+                Transform(new_node.next_arrow, transformed_arrow),
+                headtext.animate.shift(LEFT * 2 + UP * 0.05),
+                Transform(headarrow, headarrow_initial)
             )
 
             if len(linked_list_shift.nodes) < 10:
-                # Shift simultaneously after manipulation
-                shifts = []
-
-                # Nodes shift left by 1 unit + their arrows
-                for node in linked_list_shift.nodes: 
-                    shifts.append(node.animate.shift(LEFT * 1))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(LEFT * 1))
-                 
-                shifts.append(new_node.animate.shift(LEFT * 1))
-                shifts.append(new_node.next_arrow.animate.shift(LEFT * 1))
-
-                self.play(
-                    *shifts 
-                )
+                shift_nodes_small(self, linked_list_shift.nodes, new_node, headtext, headarrow)
 
     # Handles static tail insertion 
     def insert_node_tail(self, linked_list, idx1, new_value, headtext, headarrow):
@@ -383,7 +384,7 @@ class DualScene(Scene):
                 )
     
     # Handles shifting tail insertion
-    def insert_node_tail_shift(self, linked_list_shift, idx1, new_value):
+    def insert_node_tail_shift(self, linked_list_shift, idx1, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list_shift.nodes[idx1]     
 
@@ -396,10 +397,6 @@ class DualScene(Scene):
             )
 
             self.play(FadeOut(textfunc))
-
-            if not node1:
-                print("Error: Specified nodes not found in the list.")
-                return
             
             new_node = LinkedListNodeBasic(new_value)
 
@@ -408,6 +405,7 @@ class DualScene(Scene):
                 initial_position = node1.get_center() + DOWN * 3
                 new_node.move_to(initial_position)
                 new_node.set_next(None, node1.row + 1, node1.row + 1)
+                
                 basic_arrow = Arrow (
                     start = node1.get_bottom(),
                     end = new_node.get_top(),
@@ -424,11 +422,13 @@ class DualScene(Scene):
 
                 shifts = []
 
+                shifts.append(headtext.animate.shift(UP * 1.5))
+                shifts.append(headarrow.animate.shift(UP * 1.5))
+
                 # Nodes shift left by 1 unit + their arrows
                 for node in linked_list_shift.nodes: 
                     shifts.append(node.animate.shift(UP * 1.5))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                    shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                  
                 shifts.append(new_node.animate.shift(UP * 1.5))
                 shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
@@ -537,25 +537,7 @@ class DualScene(Scene):
                         )
                 
             if len(linked_list_shift.nodes) < 10:
-                if len(linked_list_shift.nodes) < 9:
-                    shift = LEFT * 1
-                else:
-                    shift = LEFT * 0.5
-                # Shift simultaneously before manipulation
-                shifts = []
-
-                # Nodes shift left by 1 unit + their arrows
-                for node in linked_list_shift.nodes: 
-                    shifts.append(node.animate.shift(shift))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(shift))
-                 
-                shifts.append(new_node.animate.shift(shift))
-                shifts.append(new_node.next_arrow.animate.shift(shift))
-                
-                self.play(
-                    *shifts 
-                )
+                shift_nodes_small(self, linked_list_shift.nodes, new_node, headtext, headarrow)
 
     # Handles static basic insertion
     def insert_node_row(self, linked_list, idx1, idx2, new_value):
@@ -659,7 +641,7 @@ class DualScene(Scene):
             )
     
     # Handles shifting basic insertion
-    def insert_node_row_shift(self, linked_list_shift, idx1, idx2, new_value):
+    def insert_node_row_shift(self, linked_list_shift, idx1, idx2, new_value, headtext, headarrow):
             # Find the reference nodes for insertion + color code them
             node1 = linked_list_shift.nodes[idx1]
             node2 = linked_list_shift.nodes[idx2]     
@@ -675,10 +657,6 @@ class DualScene(Scene):
 
             self.play(FadeOut(textfunc))
 
-            if not node1 or not node2:
-                print("Error: Specified nodes not found in the list.")
-                return
-
             if len(linked_list_shift.nodes) < 10:
                 if len(linked_list_shift.nodes) < 9:
                     shift_left = LEFT * 1
@@ -689,6 +667,8 @@ class DualScene(Scene):
                 # Shift simultaneously before manipulation
                 shifts = []
 
+                shifts.append(headtext.animate.shift(shift_left))
+                shifts.append(headarrow.animate.shift(shift_left))
                 # Nodes from the first node to node1 left by 1 unit + their arrows
                 for node in linked_list_shift.nodes[:linked_list_shift.nodes.index(node1) + 1]: 
                     shifts.append(node.animate.shift(shift_left))
@@ -907,7 +887,7 @@ class DualScene(Scene):
         self.play(Transform(node1.next_arrow, arrow_to_new), FadeIn(new_node.next_arrow))
 
     # Handles shifting insertion in between lines
-    def insert_node_inbetween_lines_shift(self, linked_list_shift, idx1, idx2, new_value):
+    def insert_node_inbetween_lines_shift(self, linked_list_shift, idx1, idx2, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
         node1 = linked_list_shift.nodes[idx1]
         node2 = linked_list_shift.nodes[idx2]     
@@ -922,10 +902,6 @@ class DualScene(Scene):
         )
 
         self.play(FadeOut(textfunc))
-
-        if not node1 or not node2:
-            print("Error: Specified nodes not found in the list.")
-            return
         
         # Identify affected nodes for shifting to make space for insertion
         nodes_above = [n for n in linked_list_shift.nodes if n.row <= node1.row]  # Rows before insertion
@@ -951,6 +927,8 @@ class DualScene(Scene):
                 node1.get_bottom() + UP * 0.5 + DOWN * 0.1, 
                 node2.get_top() + DOWN * 0.5 + UP * 0.1
             ),
+            headtext.animate.shift(UP * 0.5),
+            headarrow.animate.shift(UP * 0.5),
             run_time=0.8
         )
 
@@ -1016,6 +994,8 @@ class DualScene(Scene):
                     node1.get_bottom() + DOWN * 0.5 + DOWN * 0.1, 
                     new_node.get_top() + UP * 0.5 + UP * 0.1
             ),
+            headtext.animate.shift(DOWN * 0.5),
+            headarrow.animate.shift(DOWN * 0.5),
             run_time=0.8
         )
 
@@ -1273,6 +1253,24 @@ class DualScene(Scene):
                         run_time = 0.3
                     )
                     self.wait(0.2)
+
+# Logic for shifting the nodes for len(nodes)<10
+def shift_nodes_small(scene, nodes, new_node, headtext, headarrow):
+    shift = LEFT * 1 if len(nodes) < 9 else LEFT * 0.5
+    shifts = []
+
+    shifts.append(headtext.animate.shift(shift))
+    shifts.append(headarrow.animate.shift(shift))
+
+    for node in nodes:
+        shifts.append(node.animate.shift(shift))
+        if node.next_arrow:
+            shifts.append(node.next_arrow.animate.shift(shift))
+
+    shifts.append(new_node.animate.shift(shift))
+    shifts.append(new_node.next_arrow.animate.shift(shift))
+
+    scene.play(*shifts)
 
 # Logic for shifting the nodes to the right
 def shift_nodes_to_the_right(nodes, idx2):
