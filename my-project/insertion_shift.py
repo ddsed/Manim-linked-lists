@@ -156,7 +156,7 @@ class LinkedListShiftScene(MovingCameraScene):
             shifts = shift_nodes_to_the_right(nodes, idx2)
 
             headarrow_updated = Arrow(
-                start=headtext.get_left() + RIGHT * 2,
+                start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
                 end=new_node.get_right(),
                 tip_length=0.2,
                 buff=0.1
@@ -166,13 +166,13 @@ class LinkedListShiftScene(MovingCameraScene):
                 FadeIn(new_node),
                 FadeIn(new_node.next_arrow),
                 new_node.box.animate.set_fill(GREEN_E, opacity=1),
-                headtext.animate.shift(RIGHT * 2),
+                headtext.animate.shift(RIGHT * 2 + DOWN * 0.05),
                 Transform(headarrow, headarrow_updated)
 
             )
 
             headarrow_initial = Arrow(
-                start=headtext.get_bottom() + LEFT * 2,
+                start=headtext.get_bottom() + LEFT * 2 + + UP * 0.05,
                 end=node2.get_top(),
                 tip_length=0.2,
                 buff=0.1
@@ -182,7 +182,7 @@ class LinkedListShiftScene(MovingCameraScene):
                 *shifts,
                 new_node.animate.move_to(node2.get_center()),
                 Transform(new_node.next_arrow, transformed_arrow),
-                headtext.animate.shift(LEFT * 2),
+                headtext.animate.shift(LEFT * 2 + UP * 0.05),
                 Transform(headarrow, headarrow_initial)
             )
 

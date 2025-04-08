@@ -28,13 +28,24 @@ class LinkedListStaticScene(MovingCameraScene):
         # Center the structure
         self.center_nodes(nodes)
 
+        # Create head pointer
+        headtext = Text("HEAD", font_size=26)
+        headtext.next_to(nodes[0], UP, buff=1).align_to(nodes[0], LEFT)
+        headarrow = Arrow(
+            start=headtext.get_bottom(), 
+            end=nodes[0].get_top(),
+            buff=0.1,
+            tip_length=0.2,
+            color=WHITE
+        )
+
         # Animate node appearance
-        self.animate_nodes(nodes)
+        self.animate_nodes(nodes, headtext, headarrow)
 
         self.wait(1)
 
         # Insert function
-        self.insert_node(nodes, insert_idx1, insert_idx2, new_letter)
+        self.insert_node(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
 
     def create_and_position_nodes(self, node_values):
         NODE_SPACING = 2
@@ -71,11 +82,13 @@ class LinkedListStaticScene(MovingCameraScene):
         for node in nodes:
             node.shift(shift_amount)
 
-    def animate_nodes(self, nodes):
+    def animate_nodes(self, nodes, headtext, headarrow):
         textfuncadd = Text("add()", font_size=36)
         textfuncarrow = Text("nodes[i - 1].set_next(node[i])", font_size=36)
         textfuncadd.to_edge(UP).shift(UP * 1)
         textfuncarrow.to_edge(UP).shift(UP * 1)
+
+        self.play(FadeIn(headtext), FadeIn(headarrow))
 
         for i, node in enumerate(nodes):
             if i < 3:
@@ -99,18 +112,18 @@ class LinkedListStaticScene(MovingCameraScene):
             last_node.set_next(None, last_node.row, last_node.row)
         self.play(FadeIn(last_node.next_arrow, run_time=0.1))
         
-    def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter):
+    def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
         #Determines the correct method for inserting a node and calls it.
         if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
-            self.insert_node_head(nodes, insert_idx2, new_letter)
+            self.insert_node_head(nodes, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx1 == len(nodes) - 1:
-            self.insert_node_tail(nodes, insert_idx1, new_letter)
+            self.insert_node_tail(nodes, insert_idx1, new_letter, headtext, headarrow)
         else:
             self.insert_node_row(nodes, insert_idx1, insert_idx2, new_letter)
 
-    def insert_node_head(self, nodes, idx2, new_value):
+    def insert_node_head(self, nodes, idx2, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
             node2 = nodes[idx2]     
 
@@ -122,10 +135,6 @@ class LinkedListStaticScene(MovingCameraScene):
             )
 
             self.play(FadeOut(textfunc))
-
-            if not node2:
-                print("Error: Specified nodes not found in the list.")
-                return
             
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
@@ -139,15 +148,24 @@ class LinkedListStaticScene(MovingCameraScene):
                 tip_length=0.2
             )
 
+            headarrow_updated = Arrow(
+                start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
+                end=new_node.get_right(),
+                tip_length=0.2,
+                buff=0.1
+            )
+
             self.play(
                 FadeIn(new_node),
                 FadeIn(new_node.next_arrow),
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                new_node.box.animate.set_fill(GREEN_E, opacity=1),
+                headtext.animate.shift(RIGHT * 2 + DOWN * 0.05),
+                Transform(headarrow, headarrow_updated)
             )
 
             self.zoom_in_head(node2, new_node)
 
-    def insert_node_tail(self, nodes, idx1, new_value):
+    def insert_node_tail(self, nodes, idx1, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
         node1 = nodes[idx1]     
 
@@ -188,11 +206,13 @@ class LinkedListStaticScene(MovingCameraScene):
             
             shifts = []
 
+            shifts.append(headtext.animate.shift(UP * 1.5))
+            shifts.append(headarrow.animate.shift(UP * 1.5))
+
             # Nodes shifts to center the structure
             for node in nodes: 
                 shifts.append(node.animate.shift(UP * 1.5))
-                if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                 
             shifts.append(new_node.animate.shift(UP * 1.5))
             shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
@@ -244,12 +264,14 @@ class LinkedListStaticScene(MovingCameraScene):
                 shift = LEFT * 0.5
             # Shift simultaneously
             shifts = []
-
+            
+            shifts.append(headtext.animate.shift(shift))
+            shifts.append(headarrow.animate.shift(shift))
+            
             # Nodes shift left by 1 unit + their arrows
             for node in nodes: 
                 shifts.append(node.animate.shift(shift))
-                if node.next_arrow:
-                    shifts.append(node.next_arrow.animate.shift(shift))
+                shifts.append(node.next_arrow.animate.shift(shift))
                 
             shifts.append(new_node.animate.shift(shift))
             shifts.append(new_node.next_arrow.animate.shift(shift))
@@ -280,7 +302,7 @@ class LinkedListStaticScene(MovingCameraScene):
 
         # Create the new node to insert
         new_node = LinkedListNodeBasic(new_value)
-        if idx1 == 10 or idx1 == 20:
+        if idx1 == 0 or idx1 == 10 or idx1 == 20:
             initial_position = (node1.get_right() + node2.get_left()) / 2 + DOWN * 1.5
         else:
             initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
@@ -296,7 +318,7 @@ class LinkedListStaticScene(MovingCameraScene):
         # Create arrows to and from the new node for even rows
         if node1.row % 2 == 0:
             # for node right after the row switch
-            if idx1 == 20:
+            if idx1 == 0 or idx1 == 20:
                 arrow_to_new = Arrow(
                     start=node1.get_bottom(), 
                     end=new_node.get_left(),
@@ -462,7 +484,7 @@ class LinkedListStaticScene(MovingCameraScene):
         # Positioning for new node
         # Same row
         if node1.row == node2.row:
-            if idx1 == 10 or idx1 == 20:
+            if idx1 == 0 or idx1 == 10 or idx1 == 20:
                 node_closeup.shift((node1_closeup.get_center() + node2_closeup.get_center()) / 2 + DOWN * 0.6)
             else:
                 node_closeup.shift((node1_closeup.get_center() + node2_closeup.get_center()) / 2 + UP * 0.6)
@@ -524,25 +546,42 @@ class LinkedListStaticScene(MovingCameraScene):
         background.set_stroke(opacity=0)
         node1_closeup = LinkedListNodeCloseup(node2.text.text, node2.row, node2.col).scale(0.6)
         node2_closeup = LinkedListNodeCloseup(node2.text.text, node2.row, node2.col).scale(0.6)
-        node1_closeup.shift(position)
-        node2_closeup.shift(position + RIGHT * 4)
+        node1_closeup.shift(position + DOWN * 0.8)
+        node2_closeup.shift(position + RIGHT * 4 + DOWN * 0.8)
         node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
+        headtext = Text("HEAD", font_size=26)
+        headtext.shift(position + UP * 1.2)
+        headarrow = Arrow(
+            start=headtext.get_bottom(), 
+            end=node1_closeup.get_top(),
+            buff=0.1,
+            tip_length=0.2
+        )
 
         self.play(
             self.camera.frame.animate.move_to(position).set(width=node2.width*6),
             FadeIn(background),
             FadeIn(node1_closeup),
             node1_closeup.box.animate.set_fill(GREEN, opacity=0.35),
-            FadeIn(node1_closeup.next_arrow)
+            FadeIn(node1_closeup.next_arrow),
+            FadeIn(headtext),
+            FadeIn(headarrow)
         )
 
         node_closeup = LinkedListNodeCloseup(new_node.text.text).scale(0.6)
         node_closeup.shift(node1_closeup.get_left() + UP * 0.6 + LEFT * 1.5)
         node_closeup.next_arrow = node_closeup.set_next(node1_closeup, node1_closeup.row, node1_closeup.row)
 
+        headarrow_updated = CurvedArrow(
+            start_point=headtext.get_left() + LEFT * 0.1, 
+            end_point=node_closeup.get_top() + UP * 0.1,
+            tip_length=0.2
+        )
+
         self.play(
             FadeIn(node_closeup),
-            node_closeup.box.animate.set_fill(GREEN, opacity=1)
+            node_closeup.box.animate.set_fill(GREEN, opacity=1),
+            Transform(headarrow, headarrow_updated)
         )
 
         self.play(FadeIn(node_closeup.next_arrow))
@@ -555,7 +594,9 @@ class LinkedListStaticScene(MovingCameraScene):
             FadeOut(node1_closeup),
             FadeOut(node1_closeup.next_arrow),
             FadeOut(node_closeup),
-            FadeOut(node_closeup.next_arrow)
+            FadeOut(node_closeup.next_arrow),
+            FadeOut(headtext),
+            FadeOut(headarrow)
         )
 
         self.wait(1)
