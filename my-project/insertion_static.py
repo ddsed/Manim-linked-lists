@@ -11,7 +11,7 @@ class LinkedListStaticScene(MovingCameraScene):
         self.camera.frame_center = ORIGIN  # Keep centered
 
         # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, max = 29): ").split()
+        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 2, max = 29): ").split()
         last_index = len(node_values) - 1
 
         insert_idx1, insert_idx2 = map(int, input(
@@ -74,8 +74,8 @@ class LinkedListStaticScene(MovingCameraScene):
     def animate_nodes(self, nodes):
         textfuncadd = Text("add()", font_size=36)
         textfuncarrow = Text("nodes[i - 1].set_next(node[i])", font_size=36)
-        textfuncadd.next_to(nodes[0], UP, buff=0.5).align_to(nodes[0], LEFT)
-        textfuncarrow.next_to(nodes[0], UP, buff=0.5).align_to(nodes[0], LEFT)
+        textfuncadd.to_edge(UP).shift(UP * 1)
+        textfuncarrow.to_edge(UP).shift(UP * 1)
 
         for i, node in enumerate(nodes):
             if i < 3:
@@ -115,8 +115,7 @@ class LinkedListStaticScene(MovingCameraScene):
             node2 = nodes[idx2]     
 
             textfunc = Text(f"insert() to head position", font_size = 36)
-            textfunc.next_to(nodes[0], UP, buff=0.5)
-            textfunc.align_to(nodes[0], LEFT)
+            textfunc.to_edge(UP).shift(UP * 1)
             self.play(
                 node2.box.animate.set_fill(GREEN, opacity=0.35),
                 FadeIn(textfunc)
@@ -153,8 +152,7 @@ class LinkedListStaticScene(MovingCameraScene):
         node1 = nodes[idx1]     
 
         textfunc = Text(f"insert() to tail position", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=0.5)
-        textfunc.align_to(nodes[0], LEFT)
+        textfunc.to_edge(UP).shift(UP * 1)
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             FadeIn(textfunc)
@@ -267,8 +265,7 @@ class LinkedListStaticScene(MovingCameraScene):
         node2 = nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=0.5)
-        textfunc.align_to(nodes[0], LEFT)
+        textfunc.to_edge(UP).shift(UP * 1)
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             node2.box.animate.set_fill(GREEN, opacity=0.35),
@@ -369,8 +366,7 @@ class LinkedListStaticScene(MovingCameraScene):
         node2 = nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=0.5)
-        textfunc.align_to(nodes[0], LEFT)
+        textfunc.to_edge(UP).shift(UP * 1)
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             node2.box.animate.set_fill(GREEN, opacity=0.35),
