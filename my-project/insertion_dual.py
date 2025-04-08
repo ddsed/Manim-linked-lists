@@ -42,7 +42,7 @@ class DualScene(Scene):
         self.play(FadeIn(title))
 
         # Animate node creation
-        self.animate_nodes(linked_list.nodes, linked_list_shift.nodes)
+        self.animate_nodes(linked_list.nodes, linked_list_shift.nodes, linked_list.headtext, linked_list_shift.headtext, linked_list.headarrow, linked_list_shift.headarrow)
         
         # Show the memory units
         self.play(FadeIn(memory_line, run_time=2))
@@ -52,7 +52,7 @@ class DualScene(Scene):
         arrows = self.create_arrows(memory_line)
 
         # Perform insertion animation
-        self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter)
+        self.insert_node(linked_list, insert_idx1, insert_idx2, new_letter, linked_list.headtext, linked_list.headarrow)
         self.insert_node_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
 
         if insert_idx2 == 0:
@@ -65,17 +65,9 @@ class DualScene(Scene):
         self.transform_pointers(memory_line, updated_original_nodes)
     
     # Handles the animation for showing nodes
-    def animate_nodes(self, nodes_left, nodes_right):
-        # Text to show
-        textfuncadd = Text("add()", font_size=42)
-        textfuncarrow = Text("nodes[i-1].set_next(node[i])", font_size=42)
+    def animate_nodes(self, nodes_left, nodes_right, nodes_left_head, nodes_right_head, nodes_left_headarrow, nodes_right_headarrow):
 
-        # Positioning the text at the top of the screen
-        textfuncadd.next_to(nodes_left[0], UP, buff=0.6)
-        textfuncadd.align_to(nodes_left[0], LEFT)
-        textfuncarrow.next_to(nodes_left[0], UP, buff=0.6)
-        textfuncarrow.align_to(nodes_left[0], LEFT)
-
+        self.play(FadeIn(nodes_left_head), FadeIn(nodes_right_head), FadeIn(nodes_left_headarrow), FadeIn(nodes_right_headarrow))
         # Loop through both left and right lists at the same time (since the length is the same)
         for i in range(len(nodes_left)):  
             left_node = nodes_left[i]
@@ -84,17 +76,13 @@ class DualScene(Scene):
             # For the first 3 nodes, animate them simultaneously
             if i < 3:
                 # both left and right nodes at the same time
-                self.play(FadeIn(left_node, run_time=0.3), FadeIn(right_node, run_time=0.3), FadeIn(textfuncadd, run_time=0.4))
-                self.play(FadeOut(textfuncadd, run_time=0.3))
+                self.play(FadeIn(left_node, run_time=0.3), FadeIn(right_node, run_time=0.3))
 
                 # Animate the set_next arrows for both sides (if i > 0)
                 if i > 0:
                     arrow_left = nodes_left[i - 1].set_next(left_node, (i - 1) // 10, i // 10)
                     arrow_right = nodes_right[i - 1].set_next(right_node, (i - 1) // 10, i // 10)
-                    self.play(FadeIn(arrow_left, run_time=0.3), FadeIn(arrow_right, run_time=0.3), FadeIn(textfuncarrow, run_time=0.4))
-
-                    # FadeOut set_next text
-                    self.play(FadeOut(textfuncarrow, run_time=0.3))
+                    self.play(FadeIn(arrow_left, run_time=0.3), FadeIn(arrow_right, run_time=0.3))
 
             else:
                 # For nodes after the first 3, fade them in one by one
@@ -155,45 +143,41 @@ class DualScene(Scene):
         return arrows
     
     # Determines the correct method for inserting a node
-    def insert_node(self, linked_list, insert_idx1, insert_idx2, new_letter):
-        if insert_idx1 == 9 and insert_idx1 != len(linked_list) - 1 or insert_idx1 == 19 and insert_idx1 != len(linked_list) - 1:
+    def insert_node(self, linked_list, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
+        if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(linked_list.nodes) - 1:
             self.insert_node_inbetween_lines(linked_list, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
-            self.insert_node_head(linked_list, insert_idx2, new_letter)
-        elif insert_idx1 == len(linked_list) - 1:
-            self.insert_node_tail(linked_list, insert_idx1, new_letter)
+            self.insert_node_head(linked_list, insert_idx2, new_letter, headtext, headarrow)
+        elif insert_idx1 == len(linked_list.nodes) - 1:
+            self.insert_node_tail(linked_list, insert_idx1, new_letter, headtext, headarrow)
         else:
             self.insert_node_row(linked_list, insert_idx1, insert_idx2, new_letter)
     
     # Determines the correct method for inserting a node with shifting
     def insert_node_shift(self, linked_list_shift, insert_idx1, insert_idx2, new_letter):
-        if insert_idx1 == 9 and insert_idx1 != len(linked_list_shift) - 1 or insert_idx1 == 19 and insert_idx1 != len(linked_list_shift) - 1:
+        if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(linked_list_shift.nodes) - 1:
             self.insert_node_inbetween_lines_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
             self.insert_node_head_shift(linked_list_shift, insert_idx2, new_letter)
-        elif insert_idx1 == len(linked_list_shift) - 1:
+        elif insert_idx1 == len(linked_list_shift.nodes) - 1:
             self.insert_node_tail_shift(linked_list_shift, insert_idx1, new_letter)
         else:
             self.insert_node_row_shift(linked_list_shift, insert_idx1, insert_idx2, new_letter)
 
     # Handles static head insertion 
-    def insert_node_head(self, linked_list, idx2, new_value):
+    def insert_node_head(self, linked_list, idx2, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
             node2 = linked_list.nodes[idx2]     
 
             textfunc = Text(f"insert() to head position", font_size = 42)
-            textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node2.box.animate.set_fill(GREEN, opacity=0.35),
                 FadeIn(textfunc)
             )
 
             self.play(FadeOut(textfunc))
-
-            if not node2:
-                print("Error: Specified nodes not found in the list.")
-                return
             
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
@@ -207,10 +191,19 @@ class DualScene(Scene):
                 tip_length=0.2
             )
 
+            headarrow_updated = Arrow(
+                start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
+                end=new_node.get_right(),
+                tip_length=0.2,
+                buff=0.1
+            )
+
             self.play(
                 FadeIn(new_node),
                 FadeIn(new_node.next_arrow),
-                new_node.box.animate.set_fill(GREEN_E, opacity=1)
+                new_node.box.animate.set_fill(GREEN_E, opacity=1),
+                headtext.animate.shift(RIGHT * 2 + DOWN * 0.05),
+                Transform(headarrow, headarrow_updated)
             )
 
     # Handles shifting head insertion 
@@ -219,8 +212,8 @@ class DualScene(Scene):
             node2 = linked_list_shift.nodes[idx2]     
 
             textfunc = Text(f"insert() to head position", font_size = 42)
-            textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list_shift.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node2.box.animate.set_fill(GREEN, opacity=0.35),
                 FadeIn(textfunc)
@@ -281,23 +274,19 @@ class DualScene(Scene):
                 )
 
     # Handles static tail insertion 
-    def insert_node_tail(self, linked_list, idx1, new_value):
+    def insert_node_tail(self, linked_list, idx1, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
             node1 = linked_list.nodes[idx1]     
 
             textfunc = Text(f"insert() to tail position", font_size = 42)
-            textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node1.box.animate.set_fill(GREEN, opacity=0.35),
                 FadeIn(textfunc)
             )
 
             self.play(FadeOut(textfunc))
-
-            if not node1:
-                print("Error: Specified nodes not found in the list.")
-                return
             
             new_node = LinkedListNodeBasic(new_value)
 
@@ -322,11 +311,13 @@ class DualScene(Scene):
                 
                 shifts = []
 
+                shifts.append(headtext.animate.shift(UP * 1.5))
+                shifts.append(headarrow.animate.shift(UP * 1.5))
+
                 # Nodes shifts to center the structure
                 for node in linked_list.nodes: 
                     shifts.append(node.animate.shift(UP * 1.5))
-                    if node.next_arrow:
-                        shifts.append(node.next_arrow.animate.shift(UP * 1.5))
+                    shifts.append(node.next_arrow.animate.shift(UP * 1.5))
                  
                 shifts.append(new_node.animate.shift(UP * 1.5))
                 shifts.append(new_node.next_arrow.animate.shift(UP * 1.5))
@@ -375,6 +366,9 @@ class DualScene(Scene):
                 # Shift simultaneously
                 shifts = []
 
+                shifts.append(headtext.animate.shift(LEFT * 1))
+                shifts.append(headarrow.animate.shift(LEFT * 1))
+
                 # Nodes shift left by 1 unit + their arrows
                 for node in linked_list.nodes: 
                     shifts.append(node.animate.shift(LEFT * 1))
@@ -394,8 +388,8 @@ class DualScene(Scene):
             node1 = linked_list_shift.nodes[idx1]     
 
             textfunc = Text(f"insert() to tail position", font_size = 42)
-            textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list_shift.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node1.box.animate.set_fill(GREEN, opacity=0.35),
                 FadeIn(textfunc)
@@ -570,8 +564,8 @@ class DualScene(Scene):
             node2 = linked_list.nodes[idx2]     
 
             textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
-            textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node1.box.animate.set_fill(GREEN, opacity=0.35),
                 node2.box.animate.set_fill(GREEN, opacity=0.35),
@@ -586,7 +580,7 @@ class DualScene(Scene):
 
             # Create the new node to insert
             new_node = LinkedListNodeBasic(new_value)
-            if idx1 == 10 or idx1 == 20:
+            if idx1 == 0 or idx1 == 10 or idx1 == 20:
                 initial_position = (node1.get_right() + node2.get_left()) / 2 + DOWN * 1.5
             else:
                 initial_position = (node1.get_right() + node2.get_left()) / 2 + UP * 1.5
@@ -602,7 +596,7 @@ class DualScene(Scene):
             # Create arrows to and from the new node for even rows
             if node1.row % 2 == 0:
                 # for node right after the row switch
-                if idx1 == 20:
+                if idx1 == 0 or idx1 == 20:
                     arrow_to_new = Arrow(
                         start=node1.get_bottom(), 
                         end=new_node.get_left(),
@@ -671,8 +665,8 @@ class DualScene(Scene):
             node2 = linked_list_shift.nodes[idx2]     
 
             textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
-            textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
-            textfunc.align_to(linked_list_shift.nodes[0], LEFT)
+            textfunc.move_to(ORIGIN + UP * 10.1)
+
             self.play(
                 node1.box.animate.set_fill(GREEN, opacity=0.35),
                 node2.box.animate.set_fill(GREEN, opacity=0.35),
@@ -872,8 +866,8 @@ class DualScene(Scene):
         node2 = linked_list.nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
-        textfunc.next_to(linked_list.nodes[0], UP, buff=0.5)
-        textfunc.align_to(linked_list.nodes[0], LEFT)
+        textfunc.move_to(ORIGIN + UP * 10.1)
+
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             node2.box.animate.set_fill(GREEN, opacity=0.35),
@@ -919,8 +913,8 @@ class DualScene(Scene):
         node2 = linked_list_shift.nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 42)
-        textfunc.next_to(linked_list_shift.nodes[0], UP, buff=0.5)
-        textfunc.align_to(linked_list_shift.nodes[0], LEFT)
+        textfunc.move_to(ORIGIN + UP * 10.1)
+        
         self.play(
             node1.box.animate.set_fill(GREEN, opacity=0.35),
             node2.box.animate.set_fill(GREEN, opacity=0.35),

@@ -9,7 +9,7 @@ class LinkedListVGroup(VGroup):
         self.nodes = [LinkedListNodeBasic(value, row=i // 10, col=i % 10) for i, value in enumerate(node_values)]
         self.node_spacing = node_spacing
         self.row_spacing = row_spacing
-
+        
         self.construct_list()
 
     # Positions the nodes in a structured grid layout
@@ -28,6 +28,18 @@ class LinkedListVGroup(VGroup):
             self.add(node)
 
         self.center_list()
+            # Now that nodes are positioned, create the HEAD label and arrow
+        self.headtext = Text("HEAD", font_size=26)
+        self.headtext.next_to(self.nodes[0], UP, buff=1).align_to(self.nodes[0], LEFT)
+
+        self.headarrow = Arrow(
+            start=self.headtext.get_bottom(),
+            end=self.nodes[0].get_top(),
+            buff=0.1,
+            tip_length=0.2,
+            color=WHITE
+        )
+        self.add(self.headarrow, self.headtext)
     # Centers the entire linked list structure on the screen.
     def center_list(self):
         if not self.nodes:

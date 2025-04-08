@@ -114,7 +114,7 @@ class LinkedListStaticScene(MovingCameraScene):
         
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
         #Determines the correct method for inserting a node and calls it.
-        if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
+        if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter)
         elif insert_idx2 == 0:
             self.insert_node_head(nodes, insert_idx2, new_letter, headtext, headarrow)
@@ -177,10 +177,6 @@ class LinkedListStaticScene(MovingCameraScene):
         )
 
         self.play(FadeOut(textfunc))
-
-        if not node1:
-            print("Error: Specified nodes not found in the list.")
-            return
         
         new_node = LinkedListNodeBasic(new_value)
 
