@@ -41,7 +41,11 @@ class LinkedListStaticScene(MovingCameraScene):
 
         self.wait(1)
 
-        self.delete_head(nodes, delete_idx, headtext, headarrow)
+        if delete_idx == 0:
+            self.delete_head(nodes, delete_idx, headtext, headarrow)
+        else:
+            self.delete_tail(nodes, delete_idx, headtext, headarrow)
+
 
     def create_and_position_nodes(self, node_values):
         NODE_SPACING = 2
@@ -109,18 +113,18 @@ class LinkedListStaticScene(MovingCameraScene):
         self.play(FadeIn(last_node.next_arrow, run_time=0.1))
     
     def delete_head(self, nodes, delete_idx, headtext, headarrow):
-        # Find the reference nodes for insertion + color code them
+        # Find the reference node for deletion + color code it
         node_head = nodes[delete_idx] 
         node_new_head = nodes[delete_idx + 1] 
         node_for_zoom_arrow = nodes[delete_idx + 2] 
         
         textfunc = Text(f"delete() from head position", font_size = 36)
         textfunc.to_edge(UP).shift(UP * 1)
-        self.play(FadeIn(textfunc)) 
         self.play(
+            FadeIn(textfunc),
             node_head.box.animate.set_fill(GREEN, opacity=0.35),
-            FadeOut(textfunc)
-        )
+        ) 
+        self.play(FadeOut(textfunc))
         self.play(
             FadeOut(node_head.box),
             FadeOut(node_head.text),
@@ -131,6 +135,38 @@ class LinkedListStaticScene(MovingCameraScene):
         nodes.pop(delete_idx)
 
         self.zoom_in_head(node_head, node_new_head, node_for_zoom_arrow)
+
+    def delete_tail(self, nodes, delete_idx, headtext, headarrow):
+        # Find the reference node for deletion + color code it
+        node_tail = nodes[delete_idx] 
+        node_new_tail = nodes[delete_idx - 1]    
+
+        textfunc = Text(f"delete() from tail position", font_size = 36)
+        textfunc.to_edge(UP).shift(UP * 1)
+
+        self.play(
+            node_tail.box.animate.set_fill(GREEN, opacity=0.35),
+            FadeIn(textfunc)
+        )
+
+        self.play(FadeOut(textfunc))
+
+        new_arrow = Arrow(
+            start=node_new_tail.next_arrow.get_start(), 
+            end=node_new_tail.next_arrow.get_end(), 
+            tip_shape=ArrowCircleFilledTip,
+            buff=0,
+            tip_length=0.2,
+        )
+
+        self.play(
+            FadeOut(node_tail.box),
+            FadeOut(node_tail.text),
+            FadeOut(node_tail.next_arrow),
+            Transform(node_new_tail.next_arrow, new_arrow)
+        )
+
+        nodes.pop(delete_idx)
 
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
