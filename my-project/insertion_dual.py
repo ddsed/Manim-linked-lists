@@ -195,7 +195,8 @@ class DualScene(Scene):
                 start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
                 end=new_node.get_right(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(
@@ -245,7 +246,8 @@ class DualScene(Scene):
                 start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
                 end=new_node.get_right(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(
@@ -260,7 +262,8 @@ class DualScene(Scene):
                 start=headtext.get_bottom() + LEFT * 2 + + UP * 0.05,
                 end=node2.get_top(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(

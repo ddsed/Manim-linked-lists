@@ -29,14 +29,14 @@ class LinkedListShiftScene(MovingCameraScene):
         self.center_nodes(nodes)
 
         # Create head pointer
-        headtext = Text("HEAD", font_size=26)
+        headtext = Text("HEAD", font_size=26, color=YELLOW)
         headtext.next_to(nodes[0], UP, buff=1).align_to(nodes[0], LEFT)
         headarrow = Arrow(
             start=headtext.get_bottom(), 
             end=nodes[0].get_top(),
             buff=0.1,
             tip_length=0.2,
-            color=WHITE
+            color=YELLOW
         )
 
         # Animate nodes appearance
@@ -113,7 +113,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
         #Determines the correct method for inserting a node and calls it.
-        if insert_idx1 == 9 and insert_idx1 != len(nodes) - 1 or insert_idx1 == 19 and insert_idx1 != len(nodes) - 1:
+        if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(nodes) - 1:
             self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx2 == 0:
             self.insert_node_head(nodes, insert_idx2, new_letter, headtext, headarrow)
@@ -159,7 +159,8 @@ class LinkedListShiftScene(MovingCameraScene):
                 start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
                 end=new_node.get_right(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(
@@ -175,7 +176,8 @@ class LinkedListShiftScene(MovingCameraScene):
                 start=headtext.get_bottom() + LEFT * 2 + + UP * 0.05,
                 end=node2.get_top(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(
@@ -835,13 +837,14 @@ class LinkedListShiftScene(MovingCameraScene):
         node1_closeup.shift(position + DOWN * 0.8)
         node2_closeup.shift(position + RIGHT * 4 + DOWN * 0.8)
         node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
-        headtext = Text("HEAD", font_size=26)
+        headtext = Text("HEAD", font_size=26, color=YELLOW)
         headtext.shift(position + UP * 1.2)
         headarrow = Arrow(
             start=headtext.get_bottom(), 
             end=node1_closeup.get_top(),
             buff=0.1,
-            tip_length=0.2
+            tip_length=0.2,
+            color=YELLOW
         )
 
         self.play(
@@ -861,7 +864,8 @@ class LinkedListShiftScene(MovingCameraScene):
         headarrow_updated = CurvedArrow(
             start_point=headtext.get_left() + LEFT * 0.1, 
             end_point=node_closeup.get_top() + UP * 0.1,
-            tip_length=0.2
+            tip_length=0.2,
+            color=YELLOW
         )
 
         self.play(
@@ -890,7 +894,8 @@ class LinkedListShiftScene(MovingCameraScene):
             start=headtext.get_bottom() + LEFT * 1.3,
             end=node_closeup.get_top() + DOWN * 0.6 + RIGHT * 0.8,
             buff=0.1,
-            tip_length=0.2
+            tip_length=0.2,
+            color=YELLOW
         )
 
         self.play(

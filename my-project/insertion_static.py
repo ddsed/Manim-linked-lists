@@ -29,14 +29,14 @@ class LinkedListStaticScene(MovingCameraScene):
         self.center_nodes(nodes)
 
         # Create head pointer
-        headtext = Text("HEAD", font_size=26)
+        headtext = Text("HEAD", font_size=26, color=YELLOW)
         headtext.next_to(nodes[0], UP, buff=1).align_to(nodes[0], LEFT)
         headarrow = Arrow(
             start=headtext.get_bottom(), 
             end=nodes[0].get_top(),
             buff=0.1,
             tip_length=0.2,
-            color=WHITE
+            color=YELLOW
         )
 
         # Animate node appearance
@@ -152,7 +152,8 @@ class LinkedListStaticScene(MovingCameraScene):
                 start=headtext.get_left() + RIGHT * 2 + DOWN * 0.05,
                 end=new_node.get_right(),
                 tip_length=0.2,
-                buff=0.1
+                buff=0.1,
+                color=YELLOW
             )
 
             self.play(
@@ -545,13 +546,14 @@ class LinkedListStaticScene(MovingCameraScene):
         node1_closeup.shift(position + DOWN * 0.8)
         node2_closeup.shift(position + RIGHT * 4 + DOWN * 0.8)
         node1_closeup.next_arrow = node1_closeup.set_next(node2_closeup, node1_closeup.row, node2_closeup.row)
-        headtext = Text("HEAD", font_size=26)
+        headtext = Text("HEAD", font_size=26, color=YELLOW)
         headtext.shift(position + UP * 1.2)
         headarrow = Arrow(
             start=headtext.get_bottom(), 
             end=node1_closeup.get_top(),
             buff=0.1,
-            tip_length=0.2
+            tip_length=0.2,
+            color=YELLOW
         )
 
         self.play(
@@ -571,7 +573,8 @@ class LinkedListStaticScene(MovingCameraScene):
         headarrow_updated = CurvedArrow(
             start_point=headtext.get_left() + LEFT * 0.1, 
             end_point=node_closeup.get_top() + UP * 0.1,
-            tip_length=0.2
+            tip_length=0.2,
+            color=YELLOW
         )
 
         self.play(

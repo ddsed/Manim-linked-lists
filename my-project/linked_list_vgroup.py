@@ -29,7 +29,7 @@ class LinkedListVGroup(VGroup):
 
         self.center_list()
             # Now that nodes are positioned, create the HEAD label and arrow
-        self.headtext = Text("HEAD", font_size=26)
+        self.headtext = Text("HEAD", font_size=26, color=YELLOW)
         self.headtext.next_to(self.nodes[0], UP, buff=1).align_to(self.nodes[0], LEFT)
 
         self.headarrow = Arrow(
@@ -37,7 +37,7 @@ class LinkedListVGroup(VGroup):
             end=self.nodes[0].get_top(),
             buff=0.1,
             tip_length=0.2,
-            color=WHITE
+            color=YELLOW
         )
         self.add(self.headarrow, self.headtext)
     # Centers the entire linked list structure on the screen.
