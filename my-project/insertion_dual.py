@@ -2,9 +2,7 @@ from manim import *
 import copy
 from node_basic import LinkedListNodeBasic
 from linked_list_vgroup import LinkedListVGroup
-from memory_unit import MemoryUnit
 from memory_units_vgroup import MemoryUnitsVGroup
-import random
 
 class DualScene(Scene):
     
