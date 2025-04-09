@@ -164,7 +164,9 @@ class MemoryLineScene(Scene):
         return nodes.original_nodes
     
     def insert_head(self, nodes, idx2, new_letter, arrows):
-        node_head = nodes.original_nodes[idx2] 
+        node_head = nodes.original_nodes[idx2]
+        headtext = nodes.headtext 
+        headarrow = nodes.headarrow
 
         textfunc = Text(f"insert() to head position", font_size = 36)
         textfunc.next_to(nodes[0], UP, buff=3)
@@ -199,7 +201,12 @@ class MemoryLineScene(Scene):
         # Creating an arrow from a new node
         new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN)
         new_node.next_arrow.set_stroke(width=10)
-        self.play(FadeIn(new_node.next_arrow))
+        self.play(
+            FadeIn(new_node.next_arrow),
+            headtext.animate.move_to(new_node.get_top() + UP * 2.1),
+            headarrow.animate.move_to(new_node.get_top() + UP * 1.55)
+
+        )
 
         self.wait(1)
 

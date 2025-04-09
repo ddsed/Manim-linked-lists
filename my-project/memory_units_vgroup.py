@@ -45,17 +45,17 @@ class MemoryUnitsVGroup(VGroup):
         self.add(memory_text, index_text_bg)
 
         # Add HEAD pointer above the original node with index 0
-        headtext = Text("HEAD", font_size=24, color=YELLOW)
-        headtext.next_to(self.original_nodes[0], UP, buff=2)
-        headarrow = Arrow(
-            start=headtext.get_bottom(),
+        self.headtext = Text("HEAD", font_size=24, color=YELLOW)
+        self.headtext.next_to(self.original_nodes[0], UP, buff=2)
+        self.headarrow = Arrow(
+            start=self.headtext.get_bottom(),
             end=self.original_nodes[0].get_top() + UP * 1.1,
             buff=0.1,
             tip_length=0.2,
             color=YELLOW
         )
 
-        self.add(headtext, headarrow)
+        self.add(self.headtext, self.headarrow)
 
     # Positions memory units in a line
     def construct_memory(self):
