@@ -32,17 +32,30 @@ class MemoryUnitsVGroup(VGroup):
 
         # Explanation texts
         memory_text = Text("memory address", color=ORANGE, font_size=24)
-        memory_text.next_to(self.shuffled_nodes[0], UP, buff=2.25)
-        memory_text.align_to(self.shuffled_nodes[0], LEFT)
-
         circle = Circle(radius=0.3, color=PURPLE, fill_opacity=1)
         index_text = Text("idx", color=WHITE, font_size=24)
         index_text.move_to(circle.get_center())
         index_text_bg = VGroup(circle, index_text)
-        index_text_bg.next_to(self.shuffled_nodes[0], UP, buff=1.5)
+
+        memory_text.next_to(self.shuffled_nodes[0], UP, buff=5)
+        memory_text.align_to(self.shuffled_nodes[0], LEFT)
+        index_text_bg.next_to(self.shuffled_nodes[0], UP, buff=4.25)
         index_text_bg.align_to(self.shuffled_nodes[0], LEFT)
 
         self.add(memory_text, index_text_bg)
+
+        # Add HEAD pointer above the original node with index 0
+        headtext = Text("HEAD", font_size=24, color=YELLOW)
+        headtext.next_to(self.original_nodes[0], UP, buff=2)
+        headarrow = Arrow(
+            start=headtext.get_bottom(),
+            end=self.original_nodes[0].get_top() + UP * 1.1,
+            buff=0.1,
+            tip_length=0.2,
+            color=YELLOW
+        )
+
+        self.add(headtext, headarrow)
 
     # Positions memory units in a line
     def construct_memory(self):

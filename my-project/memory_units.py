@@ -80,7 +80,7 @@ class MemoryLineScene(Scene):
         node2 = nodes.original_nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=3)
         textfunc.align_to(nodes[0])
 
         self.play(
@@ -167,7 +167,7 @@ class MemoryLineScene(Scene):
         node_head = nodes.original_nodes[idx2] 
 
         textfunc = Text(f"insert() to head position", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=3)
         textfunc.align_to(nodes[0]) 
 
         self.play(
@@ -226,7 +226,7 @@ class MemoryLineScene(Scene):
         node_tail = nodes.original_nodes[idx1]  
 
         textfunc = Text(f"insert() to tail position", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=3)
         textfunc.align_to(nodes[0])
 
         self.play(
