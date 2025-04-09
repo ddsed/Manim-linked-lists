@@ -1009,7 +1009,7 @@ class DualScene(Scene):
         node2 = nodes.original_nodes[idx2]     
 
         textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=2.75)
         textfunc.align_to(nodes[0])
 
         self.play(
@@ -1095,9 +1095,11 @@ class DualScene(Scene):
     # Handles head insertion in memory unites line
     def insert_memory_unit_head(self, nodes, idx2, new_letter, arrows):
         node_head = nodes.original_nodes[idx2] 
+        headtext = nodes.headtext
+        headarrow = nodes.headarrow
 
         textfunc = Text(f"insert() to head position", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=2.75)
         textfunc.align_to(nodes[0]) 
 
         self.play(
@@ -1129,7 +1131,11 @@ class DualScene(Scene):
         # Creating an arrow from a new node
         new_node.next_arrow = new_node.set_next(node_head, CurvedArrow, color=GREEN)
         new_node.next_arrow.set_stroke(width=10)
-        self.play(FadeIn(new_node.next_arrow))
+        self.play(
+            FadeIn(new_node.next_arrow),
+            headtext.animate.move_to(new_node.get_top() + UP * 2.1),
+            headarrow.animate.move_to(new_node.get_top() + UP * 1.55)
+        )
 
         self.wait(1)
 
@@ -1157,7 +1163,7 @@ class DualScene(Scene):
         node_tail = nodes.original_nodes[idx1]  
 
         textfunc = Text(f"insert() to tail position", font_size = 36)
-        textfunc.next_to(nodes[0], UP, buff=1.5)
+        textfunc.next_to(nodes[0], UP, buff=2.75)
         textfunc.align_to(nodes[0])
 
         self.play(

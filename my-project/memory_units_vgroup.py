@@ -37,9 +37,9 @@ class MemoryUnitsVGroup(VGroup):
         index_text.move_to(circle.get_center())
         index_text_bg = VGroup(circle, index_text)
 
-        memory_text.next_to(self.shuffled_nodes[0], UP, buff=5)
+        memory_text.next_to(self.shuffled_nodes[0], UP, buff=3.75)
         memory_text.align_to(self.shuffled_nodes[0], LEFT)
-        index_text_bg.next_to(self.shuffled_nodes[0], UP, buff=4.25)
+        index_text_bg.next_to(self.shuffled_nodes[0], UP, buff=3)
         index_text_bg.align_to(self.shuffled_nodes[0], LEFT)
 
         self.add(memory_text, index_text_bg)
