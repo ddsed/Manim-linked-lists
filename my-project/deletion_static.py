@@ -11,7 +11,7 @@ class LinkedListStaticScene(MovingCameraScene):
         self.camera.frame_center = ORIGIN  # Keep centered
 
         # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 2, max = 29): ").split()
+        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").split()
         last_index = len(node_values) - 1
 
         delete_idx = int(input(
@@ -43,9 +43,10 @@ class LinkedListStaticScene(MovingCameraScene):
 
         if delete_idx == 0:
             self.delete_head(nodes, delete_idx, headtext, headarrow)
+        elif delete_idx == len(nodes) - 1:
+            self.delete_tail(nodes, delete_idx)
         else:
-            self.delete_tail(nodes, delete_idx, headtext, headarrow)
-
+            self.delete_rows(nodes, delete_idx)
 
     def create_and_position_nodes(self, node_values):
         NODE_SPACING = 2
@@ -136,7 +137,7 @@ class LinkedListStaticScene(MovingCameraScene):
 
         self.zoom_in_head(node_head, node_new_head, node_for_zoom_arrow)
 
-    def delete_tail(self, nodes, delete_idx, headtext, headarrow):
+    def delete_tail(self, nodes, delete_idx):
         # Find the reference node for deletion + color code it
         node_tail = nodes[delete_idx] 
         node_new_tail = nodes[delete_idx - 1] 
@@ -170,6 +171,45 @@ class LinkedListStaticScene(MovingCameraScene):
         nodes.pop(delete_idx)
 
         self.zoom_in_tail(delete_idx, node_tail, node_new_tail, node_for_zoom_arrow)
+
+    def delete_rows(self, nodes, delete_idx):
+        # Find the reference node for deletion + color code it
+        node_to_delete = nodes[delete_idx] 
+        node_before = nodes[delete_idx - 1]
+        node_after = nodes[delete_idx + 1]
+        
+        textfunc = Text(f"delete({node_to_delete.text.text})", font_size = 36)
+        textfunc.to_edge(UP).shift(UP * 1)
+        self.play(
+            FadeIn(textfunc),
+            node_to_delete.box.animate.set_fill(GREEN, opacity=0.35),
+        ) 
+
+        self.play(FadeOut(textfunc))
+
+        if node_to_delete.row % 2 == 0:
+            long_arrow = Arrow(
+                start=node_before.get_right(), 
+                end=node_after.get_left(), 
+                buff=0.1,
+                tip_length=0.2,
+            )
+        else:
+            long_arrow = Arrow(
+                start=node_before.get_left(), 
+                end=node_after.get_right(), 
+                buff=0.1,
+                tip_length=0.2,
+            )
+
+        self.play(
+            FadeOut(node_to_delete.box),
+            FadeOut(node_to_delete.text),
+            FadeOut(node_to_delete.next_arrow),
+            Transform(node_before.next_arrow, long_arrow)
+        )
+
+        self.zoom_in_rows(node_to_delete, node_before, node_after)
 
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
@@ -354,6 +394,79 @@ class LinkedListStaticScene(MovingCameraScene):
             FadeOut(node_new_tail_closeup),
             FadeOut(node_for_zoom_arrow),
             FadeOut(node_for_zoom_arrow.next_arrow)
+        )
+
+        self.wait(1)
+
+    def zoom_in_rows(self, node_to_delete, node_before, node_after):
+        position = node_to_delete.get_center()
+        background = Rectangle(
+            width=self.camera.frame.get_width(),  
+            height=self.camera.frame.get_height(),
+
+        )
+        background.set_fill(BLACK, opacity=1)
+        background.set_stroke(opacity=0)
+
+        # Create nodes
+        node_to_delete_closeup = LinkedListNodeCloseup(node_to_delete.text.text, node_to_delete.row, node_to_delete.col).scale(0.6)
+        node_before_closeup = LinkedListNodeCloseup(node_before.text.text, node_before.row, node_before.col).scale(0.6)
+        node_after_closeup = LinkedListNodeCloseup(node_after.text.text, node_after.row, node_after.col).scale(0.6)
+
+        node_to_delete_closeup.shift(position)
+        if node_before.get_center()[0] < node_after.get_center()[0]:
+            node_before_closeup.shift(position + LEFT * 2)
+            node_after_closeup.shift(position + RIGHT * 2)
+        else:
+            node_before_closeup.shift(position + RIGHT * 2)
+            node_after_closeup.shift(position + LEFT * 2)
+
+        node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
+        node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
+        
+        self.play(
+            self.camera.frame.animate.move_to(position).set(width=node_to_delete.width*6),
+            FadeIn(background),
+            FadeIn(node_to_delete_closeup),
+            FadeIn(node_to_delete_closeup.next_arrow),
+            FadeIn(node_before_closeup),
+            FadeIn(node_after_closeup),
+            FadeIn(node_before_closeup.next_arrow),
+            node_to_delete_closeup.box.animate.set_fill(GREEN, opacity=0.35),
+        )
+
+        animations = [
+            FadeOut(node_to_delete_closeup),
+            FadeOut(node_to_delete_closeup.next_arrow)
+        ]
+
+        if node_before.get_center()[0] < node_after.get_center()[0]:
+            animations.append(
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start(),
+                    node_after_closeup.get_left() + [0, 0.3, 0] + LEFT * 0.1
+                )
+            )
+        else:
+            # Add alternative animation if needed
+            animations.append(
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start(),
+                    # Different end point for the else case
+                    node_after_closeup.get_right() + [0, 0.3, 0] + RIGHT * 0.1
+                )
+            )
+
+        # Play all animations together
+        self.play(*animations)
+
+        # Clear screen and zoom out
+        self.play(
+            self.camera.frame.animate.move_to(ORIGIN).set(width=14 * 1.5),
+            FadeOut(background),
+            FadeOut(node_after_closeup),
+            FadeOut(node_before_closeup),
+            FadeOut(node_before_closeup.next_arrow)
         )
 
         self.wait(1)
