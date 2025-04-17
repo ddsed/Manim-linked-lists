@@ -45,6 +45,8 @@ class LinkedListStaticScene(MovingCameraScene):
             self.delete_head(nodes, delete_idx, headtext, headarrow)
         elif delete_idx == len(nodes) - 1:
             self.delete_tail(nodes, delete_idx)
+        elif (delete_idx == 9 or delete_idx == 10 or delete_idx == 19 or delete_idx == 20) and delete_idx != len(nodes) - 1:
+            self.delete_inbetween_rows(nodes, delete_idx)
         else:
             self.delete_rows(nodes, delete_idx)
 
@@ -210,6 +212,55 @@ class LinkedListStaticScene(MovingCameraScene):
         )
 
         self.zoom_in_rows(node_to_delete, node_before, node_after)
+
+    def delete_inbetween_rows(self, nodes, delete_idx):
+        # Find the reference node for deletion + color code it
+        node_to_delete = nodes[delete_idx] 
+        node_before = nodes[delete_idx - 1]
+        node_after = nodes[delete_idx + 1]
+
+        textfunc = Text(f"delete({node_to_delete.text.text})", font_size = 36)
+        textfunc.to_edge(UP).shift(UP * 1)
+        self.play(
+            FadeIn(textfunc),
+            node_to_delete.box.animate.set_fill(GREEN, opacity=0.35),
+        ) 
+
+        self.play(FadeOut(textfunc))
+
+        if delete_idx == 9:
+            long_arrow = CurvedArrow(
+                start_point=node_before.get_right() + RIGHT * 0.1, 
+                end_point=node_after.get_top() + UP * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+        elif delete_idx == 10:
+            long_arrow = CurvedArrow(
+                start_point=node_before.get_bottom() + DOWN * 0.1, 
+                end_point=node_after.get_right() + RIGHT * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+        elif delete_idx == 19:
+            long_arrow = CurvedArrow(
+                start_point=node_before.get_left() + LEFT * 0.1, 
+                end_point=node_after.get_top() + UP * 0.1, 
+                tip_length=0.2
+            )
+        else:
+            long_arrow = CurvedArrow(
+                start_point=node_before.get_bottom() + DOWN * 0.1, 
+                end_point=node_after.get_left() + LEFT * 0.1, 
+                tip_length=0.2
+            )
+        
+        self.play(
+            FadeOut(node_to_delete.box),
+            FadeOut(node_to_delete.text),
+            FadeOut(node_to_delete.next_arrow),
+            Transform(node_before.next_arrow, long_arrow)
+        )
 
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
