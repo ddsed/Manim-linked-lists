@@ -45,8 +45,6 @@ class LinkedListStaticScene(MovingCameraScene):
             self.delete_head(nodes, delete_idx, headtext, headarrow)
         elif delete_idx == len(nodes) - 1:
             self.delete_tail(nodes, delete_idx)
-        elif (delete_idx == 9 or delete_idx == 10 or delete_idx == 19 or delete_idx == 20) and delete_idx != len(nodes) - 1:
-            self.delete_inbetween_rows(nodes, delete_idx)
         else:
             self.delete_rows(nodes, delete_idx)
 
@@ -190,19 +188,47 @@ class LinkedListStaticScene(MovingCameraScene):
         self.play(FadeOut(textfunc))
 
         if node_to_delete.row % 2 == 0:
-            long_arrow = Arrow(
-                start=node_before.get_right(), 
-                end=node_after.get_left(), 
-                buff=0.1,
-                tip_length=0.2,
-            )
+            if delete_idx == 9:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_right() + RIGHT * 0.1, 
+                    end_point=node_after.get_top() + UP * 0.1, 
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
+            elif delete_idx == 20:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_bottom() + DOWN * 0.1, 
+                    end_point=node_after.get_left() + LEFT * 0.1, 
+                    tip_length=0.2
+                )
+            else:
+                long_arrow = Arrow(
+                    start=node_before.get_right(), 
+                    end=node_after.get_left(), 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
         else:
-            long_arrow = Arrow(
-                start=node_before.get_left(), 
-                end=node_after.get_right(), 
-                buff=0.1,
-                tip_length=0.2,
-            )
+            if delete_idx == 10:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_bottom() + DOWN * 0.1, 
+                    end_point=node_after.get_right() + RIGHT * 0.1, 
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
+            elif delete_idx == 19:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_left() + LEFT * 0.1, 
+                    end_point=node_after.get_top() + UP * 0.1, 
+                    tip_length=0.2
+                )
+            else:
+                long_arrow = Arrow(
+                    start=node_before.get_left(), 
+                    end=node_after.get_right(), 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
 
         self.play(
             FadeOut(node_to_delete.box),
@@ -211,56 +237,7 @@ class LinkedListStaticScene(MovingCameraScene):
             Transform(node_before.next_arrow, long_arrow)
         )
 
-        self.zoom_in_rows(node_to_delete, node_before, node_after)
-
-    def delete_inbetween_rows(self, nodes, delete_idx):
-        # Find the reference node for deletion + color code it
-        node_to_delete = nodes[delete_idx] 
-        node_before = nodes[delete_idx - 1]
-        node_after = nodes[delete_idx + 1]
-
-        textfunc = Text(f"delete({node_to_delete.text.text})", font_size = 36)
-        textfunc.to_edge(UP).shift(UP * 1)
-        self.play(
-            FadeIn(textfunc),
-            node_to_delete.box.animate.set_fill(GREEN, opacity=0.35),
-        ) 
-
-        self.play(FadeOut(textfunc))
-
-        if delete_idx == 9:
-            long_arrow = CurvedArrow(
-                start_point=node_before.get_right() + RIGHT * 0.1, 
-                end_point=node_after.get_top() + UP * 0.1, 
-                angle=-TAU/4, 
-                tip_length=0.2
-            )
-        elif delete_idx == 10:
-            long_arrow = CurvedArrow(
-                start_point=node_before.get_bottom() + DOWN * 0.1, 
-                end_point=node_after.get_right() + RIGHT * 0.1, 
-                angle=-TAU/4, 
-                tip_length=0.2
-            )
-        elif delete_idx == 19:
-            long_arrow = CurvedArrow(
-                start_point=node_before.get_left() + LEFT * 0.1, 
-                end_point=node_after.get_top() + UP * 0.1, 
-                tip_length=0.2
-            )
-        else:
-            long_arrow = CurvedArrow(
-                start_point=node_before.get_bottom() + DOWN * 0.1, 
-                end_point=node_after.get_left() + LEFT * 0.1, 
-                tip_length=0.2
-            )
-        
-        self.play(
-            FadeOut(node_to_delete.box),
-            FadeOut(node_to_delete.text),
-            FadeOut(node_to_delete.next_arrow),
-            Transform(node_before.next_arrow, long_arrow)
-        )
+        self.zoom_in_rows(node_to_delete, node_before, node_after, delete_idx)
 
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
@@ -449,7 +426,7 @@ class LinkedListStaticScene(MovingCameraScene):
 
         self.wait(1)
 
-    def zoom_in_rows(self, node_to_delete, node_before, node_after):
+    def zoom_in_rows(self, node_to_delete, node_before, node_after, delete_idx):
         position = node_to_delete.get_center()
         background = Rectangle(
             width=self.camera.frame.get_width(),  
@@ -464,16 +441,52 @@ class LinkedListStaticScene(MovingCameraScene):
         node_before_closeup = LinkedListNodeCloseup(node_before.text.text, node_before.row, node_before.col).scale(0.6)
         node_after_closeup = LinkedListNodeCloseup(node_after.text.text, node_after.row, node_after.col).scale(0.6)
 
-        node_to_delete_closeup.shift(position)
-        if node_before.get_center()[0] < node_after.get_center()[0]:
+        # Position nodes
+        if delete_idx == 9:
+            node_to_delete_closeup.shift(position + UP * 0.7)
+            node_before_closeup.shift(position + LEFT * 2 + UP * 0.7)
+            node_after_closeup.shift(position + DOWN * 1)
+        elif delete_idx == 10: 
+            node_to_delete_closeup.shift(position + DOWN * 1)
+            node_before_closeup.shift(position + UP * 0.7)
+            node_after_closeup.shift(position + LEFT * 2 + DOWN * 1)
+        elif delete_idx == 19:
+            node_to_delete_closeup.shift(position + UP * 0.7)
+            node_before_closeup.shift(position + RIGHT * 2 + UP * 0.7)
+            node_after_closeup.shift(position + DOWN * 1)
+        elif delete_idx == 20:
+            node_to_delete_closeup.shift(position + DOWN * 1)
+            node_before_closeup.shift(position + UP * 0.7)
+            node_after_closeup.shift(position + RIGHT * 2 + DOWN * 1)
+        elif node_before.get_center()[0] < node_after.get_center()[0]:
+            node_to_delete_closeup.shift(position)
             node_before_closeup.shift(position + LEFT * 2)
             node_after_closeup.shift(position + RIGHT * 2)
         else:
+            node_to_delete_closeup.shift(position)
             node_before_closeup.shift(position + RIGHT * 2)
             node_after_closeup.shift(position + LEFT * 2)
 
-        node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
-        node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
+        # Create arrows 
+        if delete_idx == 9 or delete_idx == 19:
+            node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
+            node_to_delete_closeup.next_arrow = Arrow(
+                    start=node_to_delete_closeup.get_bottom() + [0, 0.3, 0], 
+                    end=node_after_closeup.get_top(),
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+        elif delete_idx == 10 or delete_idx == 20:
+            node_before_closeup.next_arrow = Arrow(
+                start=node_before_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node_to_delete_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.1 
+            )
+            node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
+        else:
+            node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
+            node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
         
         self.play(
             self.camera.frame.animate.move_to(position).set(width=node_to_delete.width*6),
@@ -491,7 +504,46 @@ class LinkedListStaticScene(MovingCameraScene):
             FadeOut(node_to_delete_closeup.next_arrow)
         ]
 
-        if node_before.get_center()[0] < node_after.get_center()[0]:
+        # Creates arrow for after deletion
+        if delete_idx == 9:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_top() + UP * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 10:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_right() + [0, 0.3, 0] + RIGHT * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 19:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_top() + UP * 0.1,   
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 20:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_left() + [0, 0.3, 0] + LEFT * 0.1,  
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif node_before.get_center()[0] < node_after.get_center()[0]:
             animations.append(
                 node_before_closeup.next_arrow.animate.put_start_and_end_on(
                     node_before_closeup.next_arrow.get_start(),
@@ -499,16 +551,13 @@ class LinkedListStaticScene(MovingCameraScene):
                 )
             )
         else:
-            # Add alternative animation if needed
             animations.append(
                 node_before_closeup.next_arrow.animate.put_start_and_end_on(
                     node_before_closeup.next_arrow.get_start(),
-                    # Different end point for the else case
                     node_after_closeup.get_right() + [0, 0.3, 0] + RIGHT * 0.1
                 )
             )
 
-        # Play all animations together
         self.play(*animations)
 
         # Clear screen and zoom out
