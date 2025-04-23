@@ -109,20 +109,13 @@ class LinkedListShiftScene(MovingCameraScene):
         self.play(FadeIn(last_node.next_arrow, run_time=0.1))
 
     def delete_node(self, nodes, delete_idx, headtext, headarrow):
-        # Determines the correct method for inserting a node and calls it.
+        # Determines the correct method for inserting a node and calls it
         if delete_idx == 0:
             self.delete_node_head(nodes, delete_idx, headtext, headarrow)
-        else:
+        elif delete_idx == len(nodes) - 1:
             self.delete_node_tail(nodes, delete_idx, headtext, headarrow)
-
-        # if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(nodes) - 1:
-        #     self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
-        # elif insert_idx2 == 0:
-        #     self.insert_node_head(nodes, insert_idx2, new_letter, headtext, headarrow)
-        # elif insert_idx1 == len(nodes) - 1:
-        #     self.insert_node_tail(nodes, insert_idx1, new_letter, headtext, headarrow)
-        # else:
-        #     self.insert_node_row(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
+        else:
+            self.delete_node_row(nodes, delete_idx, headtext, headarrow)
 
     def delete_node_head(self, nodes, idx, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
@@ -213,6 +206,128 @@ class LinkedListShiftScene(MovingCameraScene):
             shift_nodes_small(self, nodes, idx, headtext, headarrow)
 
         self.zoom_in_tail(idx, node_tail, node_new_tail, node_for_zoom_arrow)
+
+    def delete_node_row(self, nodes, idx, headtext, headarrow):
+        # Find the reference node for deletion + color code it
+        node_to_delete = nodes[idx] 
+        node_before = nodes[idx - 1]
+        node_after = nodes[idx + 1]
+        
+        textfunc = Text(f"delete({node_to_delete.text.text})", font_size = 36)
+        textfunc.to_edge(UP).shift(UP * 1)
+        self.play(
+            FadeIn(textfunc),
+            node_to_delete.box.animate.set_fill(GREEN, opacity=0.35),
+        ) 
+
+        self.play(FadeOut(textfunc))
+
+        if node_to_delete.row % 2 == 0:
+            if idx == 9:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_right() + RIGHT * 0.1, 
+                    end_point=node_after.get_top() + UP * 0.1, 
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
+            elif idx == 20:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_bottom() + DOWN * 0.1, 
+                    end_point=node_after.get_left() + LEFT * 0.1, 
+                    tip_length=0.2
+                )
+            else:
+                long_arrow = Arrow(
+                    start=node_before.get_right(), 
+                    end=node_after.get_left(), 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
+        else:
+            if idx == 10:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_bottom() + DOWN * 0.1, 
+                    end_point=node_after.get_right() + RIGHT * 0.1, 
+                    angle=-TAU/4, 
+                    tip_length=0.2
+                )
+            elif idx == 19:
+                long_arrow = CurvedArrow(
+                    start_point=node_before.get_left() + LEFT * 0.1, 
+                    end_point=node_after.get_top() + UP * 0.1, 
+                    tip_length=0.2
+                )
+            else:
+                long_arrow = Arrow(
+                    start=node_before.get_left(), 
+                    end=node_after.get_right(), 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
+
+        self.play(
+            FadeOut(node_to_delete.box),
+            FadeOut(node_to_delete.text),
+            FadeOut(node_to_delete.next_arrow),
+            Transform(node_before.next_arrow, long_arrow)
+        )
+
+        shifts = shift_nodes_to_the_left(nodes, idx)
+
+        if node_to_delete.row % 2 == 0:
+            if idx == 9:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_right(), 
+                    end=node_after.get_left() + UP * 3, 
+                    buff=0.1,
+                    tip_length=0.2
+                )
+            elif idx == 20:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_bottom(), 
+                    end=node_after.get_top() + LEFT * 2, 
+                    buff=0.1,
+                    tip_length=0.2
+                )
+            else:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_right(), 
+                    end=node_after.get_left() + LEFT * 2, 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
+        else:
+            if idx == 10:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_bottom(), 
+                    end=node_after.get_top() + RIGHT * 2,
+                    buff=0.1,
+                    tip_length=0.2
+                )
+            elif idx == 19:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_left(), 
+                    end=node_after.get_right() + UP * 3, 
+                    buff=0.1,
+                    tip_length=0.2
+                )
+            else:
+                arrow_after_shift = Arrow(
+                    start=node_before.get_left(), 
+                    end=node_after.get_right() + RIGHT * 2, 
+                    buff=0.1,
+                    tip_length=0.2,
+                )
+
+        self.play(
+            shifts,
+            Transform(node_before.next_arrow, arrow_after_shift)
+        )
+
+        if len(nodes) < 10:
+            shift_nodes_small(self, nodes, idx, headtext, headarrow)
+
+        self.zoom_in_rows(node_to_delete, node_before, node_after, idx)
     
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
@@ -397,6 +512,222 @@ class LinkedListShiftScene(MovingCameraScene):
             FadeOut(node_new_tail_closeup),
             FadeOut(node_for_zoom_arrow),
             FadeOut(node_for_zoom_arrow.next_arrow)
+        )
+
+        self.wait(1)
+
+    def zoom_in_rows(self, node_to_delete, node_before, node_after, delete_idx):
+        position = node_to_delete.get_center()
+        background = Rectangle(
+            width=self.camera.frame.get_width(),  
+            height=self.camera.frame.get_height(),
+
+        )
+        background.set_fill(BLACK, opacity=1)
+        background.set_stroke(opacity=0)
+
+        # Create nodes
+        node_to_delete_closeup = LinkedListNodeCloseup(node_to_delete.text.text, node_to_delete.row, node_to_delete.col).scale(0.6)
+        node_before_closeup = LinkedListNodeCloseup(node_before.text.text, node_before.row, node_before.col).scale(0.6)
+        node_after_closeup = LinkedListNodeCloseup(node_after.text.text, node_after.row, node_after.col).scale(0.6)
+
+        # Position nodes
+        if delete_idx == 9:
+            node_to_delete_closeup.shift(position + UP * 0.7)
+            node_before_closeup.shift(position + LEFT * 2 + UP * 0.7)
+            node_after_closeup.shift(position + DOWN * 1)
+        elif delete_idx == 10: 
+            node_to_delete_closeup.shift(position + DOWN * 1)
+            node_before_closeup.shift(position + UP * 0.7)
+            node_after_closeup.shift(position + LEFT * 2 + DOWN * 1)
+        elif delete_idx == 19:
+            node_to_delete_closeup.shift(position + UP * 0.7)
+            node_before_closeup.shift(position + RIGHT * 2 + UP * 0.7)
+            node_after_closeup.shift(position + DOWN * 1)
+        elif delete_idx == 20:
+            node_to_delete_closeup.shift(position + DOWN * 1)
+            node_before_closeup.shift(position + UP * 0.7)
+            node_after_closeup.shift(position + RIGHT * 2 + DOWN * 1)
+        elif node_before.get_center()[0] < node_after.get_center()[0]:
+            node_to_delete_closeup.shift(position)
+            node_before_closeup.shift(position + LEFT * 2)
+            node_after_closeup.shift(position + RIGHT * 2)
+        else:
+            node_to_delete_closeup.shift(position)
+            node_before_closeup.shift(position + RIGHT * 2)
+            node_after_closeup.shift(position + LEFT * 2)
+
+        # Create arrows 
+        if delete_idx == 9 or delete_idx == 19:
+            node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
+            node_to_delete_closeup.next_arrow = Arrow(
+                    start=node_to_delete_closeup.get_bottom() + [0, 0.3, 0], 
+                    end=node_after_closeup.get_top(),
+                    tip_length=0.2,
+                    buff=0.1 
+                )
+        elif delete_idx == 10 or delete_idx == 20:
+            node_before_closeup.next_arrow = Arrow(
+                start=node_before_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node_to_delete_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.1 
+            )
+            node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
+        else:
+            node_before_closeup.next_arrow = node_before_closeup.set_next(node_to_delete_closeup,  node_before_closeup.row, node_to_delete_closeup.row)
+            node_to_delete_closeup.next_arrow = node_to_delete_closeup.set_next(node_after_closeup,  node_to_delete_closeup.row, node_after_closeup.row)
+        
+        self.play(
+            self.camera.frame.animate.move_to(position).set(width=node_to_delete.width*6),
+            FadeIn(background),
+            FadeIn(node_to_delete_closeup),
+            FadeIn(node_to_delete_closeup.next_arrow),
+            FadeIn(node_before_closeup),
+            FadeIn(node_after_closeup),
+            FadeIn(node_before_closeup.next_arrow),
+            node_to_delete_closeup.box.animate.set_fill(GREEN, opacity=0.35),
+        )
+
+        animations = [
+            FadeOut(node_to_delete_closeup),
+            FadeOut(node_to_delete_closeup.next_arrow)
+        ]
+
+        # Creates arrow for after deletion
+        if delete_idx == 9:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_top() + UP * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 10:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_right() + [0, 0.3, 0] + RIGHT * 0.1, 
+                angle=-TAU/4, 
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 19:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_top() + UP * 0.1,   
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif delete_idx == 20:
+            long_arrow = CurvedArrow(
+                start_point=node_before_closeup.next_arrow.get_start(), 
+                end_point=node_after_closeup.get_left() + [0, 0.3, 0] + LEFT * 0.1,  
+                tip_length=0.2
+            )
+            animations.append(
+                Transform(node_before_closeup.next_arrow, long_arrow)
+            )
+        elif node_before.get_center()[0] < node_after.get_center()[0]:
+            animations.append(
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start(),
+                    node_after_closeup.get_left() + [0, 0.3, 0] + LEFT * 0.1
+                )
+            )
+        else:
+            animations.append(
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start(),
+                    node_after_closeup.get_right() + [0, 0.3, 0] + RIGHT * 0.1
+                )
+            )
+
+        self.play(*animations)
+
+
+        # Creates arrow for after deletion to shift
+        animations_shift = []
+        if delete_idx == 9:
+            arrow_after_shift = Arrow(
+                start=node_before_closeup.get_bottom() + DOWN * 0.7 + [0, 0.3, 0], 
+                end=node_after_closeup.get_left() + UP * 1 + [0, 0.3, 0], 
+                buff=0.1, 
+                tip_length=0.2
+            )
+            animations_shift.append([
+                node_after_closeup.animate.shift(UP * 1),
+                node_before_closeup.animate.shift(DOWN * 0.7),
+                Transform(node_before_closeup.next_arrow, arrow_after_shift)
+            ])
+        elif delete_idx == 10:
+            arrow_after_shift = Arrow(
+                start=node_before_closeup.next_arrow.get_start() + [0, 0.3, 0], 
+                end=node_after_closeup.get_top() + RIGHT * 2, 
+                buff=0.1, 
+                tip_length=0.2
+            )
+            animations_shift.append([
+                node_after_closeup.animate.shift(RIGHT * 2),
+                Transform(node_before_closeup.next_arrow, arrow_after_shift)
+            ])
+        elif delete_idx == 19:
+            arrow_after_shift = Arrow(
+                start=node_before_closeup.get_bottom() + DOWN * 0.7 + [0, 0.3, 0], 
+                end=node_after_closeup.get_right() + UP * 1 + [0, 0.3, 0],  
+                buff=0.1, 
+                tip_length=0.2
+            )
+            animations_shift.append([
+                node_after_closeup.animate.shift(UP * 1),
+                node_before_closeup.animate.shift(DOWN * 0.7),
+                Transform(node_before_closeup.next_arrow, arrow_after_shift)
+            ])
+        elif delete_idx == 20:
+            arrow_after_shift = Arrow(
+                start=node_before_closeup.next_arrow.get_start() + [0, 0.3, 0], 
+                end=node_after_closeup.get_top() + LEFT * 2, 
+                buff=0.1, 
+                tip_length=0.2, 
+            )
+            animations_shift.append([
+                node_after_closeup.animate.shift(LEFT * 2),
+                Transform(node_before_closeup.next_arrow, arrow_after_shift)
+            ])
+        elif node_before.get_center()[0] < node_after.get_center()[0]:
+            animations_shift.append([
+                node_after_closeup.animate.shift(LEFT * 1),
+                node_before_closeup.animate.shift(RIGHT * 1),
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start() + RIGHT * 1,
+                    node_after_closeup.get_left() + [0, 0.3, 0] + LEFT * 1 + LEFT * 0.1
+                )
+            ])
+        else:
+            animations_shift.append([
+                node_after_closeup.animate.shift(RIGHT * 1),
+                node_before_closeup.animate.shift(LEFT * 1),
+                node_before_closeup.next_arrow.animate.put_start_and_end_on(
+                    node_before_closeup.next_arrow.get_start() + LEFT * 1,
+                    node_after_closeup.get_right() + [0, 0.3, 0] + + RIGHT * 1 + RIGHT * 0.1
+                )
+            ])
+
+        self.play(*animations_shift)
+
+
+        # Clear screen and zoom out
+        self.play(
+            self.camera.frame.animate.move_to(ORIGIN).set(width=14 * 1.5),
+            FadeOut(background),
+            FadeOut(node_after_closeup),
+            FadeOut(node_before_closeup),
+            FadeOut(node_before_closeup.next_arrow)
         )
 
         self.wait(1)
