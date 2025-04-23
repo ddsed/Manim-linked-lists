@@ -4,7 +4,7 @@ from node_basic import LinkedListNodeBasic
 from linked_list_vgroup import LinkedListVGroup
 from memory_units_vgroup import MemoryUnitsVGroup
 
-class DualScene(Scene):
+class OverviewScene(Scene):
     
     def construct(self):
         # Set camera settings
