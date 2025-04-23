@@ -30,11 +30,11 @@ class MemoryLineScene(Scene):
         arrows = self.create_arrows(memory_line)
         self.wait(1)
         if delete_idx == 0:
-            updated_original_nodes = self.delete_head(memory_line, delete_idx)
-        else:
+            updated_original_nodes = self.delete_head(memory_line, delete_idx, arrows)
+        elif delete_idx == len(memory_line.original_nodes) - 1:
             updated_original_nodes = self.delete_tail(memory_line, delete_idx, arrows)
-        # else:
-        #     updated_original_nodes = self.insert(memory_line, insert_idx1, insert_idx2, new_letter, arrows)
+        else:
+            updated_original_nodes = self.delete(memory_line, delete_idx, arrows)
         
         self.wait(1)
         self.transform_pointers(memory_line, updated_original_nodes)
@@ -71,96 +71,86 @@ class MemoryLineScene(Scene):
 
         return arrows
 
-    # def insert(self, nodes, idx1, idx2, new_letter, arrows):
-    #     # Find the memory units for insertion + color code them
-    #     node1 = nodes.original_nodes[idx1]
-    #     node2 = nodes.original_nodes[idx2]     
+    def delete(self, nodes, idx, arrows):
+        # Find the memory units for insertion + color code them
+        node = nodes.original_nodes[idx] 
+        node_before = nodes.original_nodes[idx - 1]
+        node_after = nodes.original_nodes[idx + 1]
 
-    #     textfunc = Text(f"insert({node1.text.text}, {node2.text.text})", font_size = 36)
-    #     textfunc.next_to(nodes[0], UP, buff=2.75)
-    #     textfunc.align_to(nodes[0])
+        textfunc = Text(f"delete({node.text.text})", font_size = 36)
+        textfunc.next_to(nodes[0], UP, buff=2.75)
+        textfunc.align_to(nodes[0])
 
-    #     self.play(
-    #         node1.box.animate.set_fill(GREEN, opacity=0.35),
-    #         node1.next_arrow.animate.shift(DOWN * 0.01).set_color(GREEN).set_stroke(width=10),
-    #         node2.box.animate.set_fill(GREEN, opacity=0.35),
-    #         nodes.index_labels[idx1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
-    #         nodes.index_labels[idx2][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
-    #         FadeIn(textfunc)
-    #     )
+        self.play(
+            node.box.animate.set_fill(GREEN, opacity=0.35),
+            node.next_arrow.animate.shift(DOWN * 0.01).set_color(GREEN).set_stroke(width=10),
+            nodes.index_labels[idx][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            FadeIn(textfunc)
+        )
 
-    #     self.play(FadeOut(textfunc), FadeOut(nodes.empty_nodes[0].text))
+        self.play(FadeOut(textfunc))
 
-    #     # Creating new node on the place of an empty unit
-    #     new_node = nodes.empty_nodes[0]
-    #     new_node.value = new_letter
-    #     new_node.text = Text(str(new_letter), font_size=24).move_to(new_node.box.get_left() + RIGHT * 0.25)
+        # Creating an arrow to a new node
+        node_before_x = node_before.get_center()[0]
+        node_after_x = node_after.get_center()[0]
 
-    #     self.play(
-    #         new_node.box.animate.set_fill(GREEN, opacity=1),
-    #         FadeIn(new_node.text),
-    #         *[
-    #         AnimationGroup(
-    #             arrow.animate.set_stroke(opacity=0.35), 
-    #             arrow.tip.animate.set_fill(opacity=0.35)
-    #         )
-    #         for arrow in arrows 
-    #             if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
-    #         ]
-    #     )
+        if node_before_x < node_after_x:
+            arrow_new = CurvedArrow(
+                start_point=node_before.next_arrow.get_start(),
+                end_point=node_after.get_bottom() + LEFT * 0.25,
+                angle=TAU/4
+            )
+        else:
+            arrow_new = CurvedArrow(
+                start_point=node_before.next_arrow.get_start(),
+                end_point=node_after.get_bottom() + LEFT * 0.25,
+                angle=-TAU/4
+            )
 
-    #     # Creating an arrow to a new node
-    #     node1_x = node1.get_center()[0]
-    #     new_node_x = new_node.get_center()[0]
+        arrow_new.set_color(GREEN)
+        arrow_new.set_stroke(width=10)
 
-    #     if node1_x < new_node_x:
-    #         arrow_to_new = CurvedArrow(
-    #             start_point=node1.next_arrow.get_start(),
-    #             end_point=new_node.get_bottom() + LEFT * 0.25,
-    #             angle=TAU/4
-    #         )
-    #     else:
-    #         arrow_to_new = CurvedArrow(
-    #             start_point=node1.next_arrow.get_start(),
-    #             end_point=new_node.get_bottom() + LEFT * 0.25,
-    #             angle=-TAU/4
-    #         )
+        self.play(
+            FadeOut(node.text), 
+            FadeOut(node.next_arrow),
+            FadeOut(node.next_arrow.tip),
+            node.box.animate.set_fill(PURPLE, opacity=0),
+            nodes.index_labels[idx][0].animate.set_fill(PURPLE, opacity=1).set_stroke(PURPLE),
+            node_before.box.animate.set_fill(GREEN, opacity=0.35),
+            node_after.box.animate.set_fill(GREEN, opacity=0.35),
+            nodes.index_labels[idx - 1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            nodes.index_labels[idx + 1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
+            Transform(node_before.next_arrow, arrow_new),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not node_before.next_arrow and arrow is not node.next_arrow and not isinstance(arrow, Circle)
+            ]
+        )
 
-    #     arrow_to_new.set_color(GREEN)
-    #     arrow_to_new.set_stroke(width=10)
+        self.wait(1)
 
-    #     # Creating an arrow from a new node
-    #     new_node.next_arrow = new_node.set_next(node2, CurvedArrow, color=GREEN)
-    #     new_node.next_arrow.set_stroke(width=10)
+        self.play(
+            node_before.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
+            node_before.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not node_before.next_arrow and arrow is not node.next_arrow and not isinstance(arrow, Circle)
+            ]
+        )
 
-    #     self.play(
-    #         Transform(node1.next_arrow, arrow_to_new), 
-    #         FadeIn(new_node.next_arrow)
-    #     )
-
-    #     self.wait(1)
-
-    #     self.play(
-    #         node1.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
-    #         node1.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
-    #         new_node.next_arrow.animate.set_color(WHITE).set_stroke(width=4),
-    #         new_node.next_arrow.tip.animate.set_color(WHITE).set_stroke(width=0),
-    #         new_node.box.animate.set_fill(GREEN, opacity=0.35),
-    #         *[
-    #         AnimationGroup(
-    #             arrow.animate.set_stroke(opacity=1), 
-    #             arrow.tip.animate.set_fill(opacity=1)
-    #         )
-    #         for arrow in arrows 
-    #             if arrow is not new_node.next_arrow and arrow is not node1.next_arrow and not isinstance(arrow, Circle)
-    #         ]
-    #     )
-
-    #     # Update the list of original nodes
-    #     nodes.original_nodes.insert(idx2, new_node)
-    #     return nodes.original_nodes
+        # Update the list of original nodes
+        del nodes.original_nodes[idx]
+        return nodes.original_nodes
     
-    def delete_head(self, nodes, idx):
+    def delete_head(self, nodes, idx, arrows):
         # Find head and new head nodes
         node_head = nodes.original_nodes[idx]
         node_new_head = nodes.original_nodes[idx + 1]
@@ -174,7 +164,16 @@ class MemoryLineScene(Scene):
         self.play(
             node_head.box.animate.set_fill(GREEN, opacity=0.35),
             nodes.index_labels[idx][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
-            FadeIn(textfunc)
+            node_head.next_arrow.animate.shift(DOWN * 0.01).set_color(GREEN).set_stroke(width=10),
+            FadeIn(textfunc),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=0.35),
+                arrow.tip.animate.set_fill(opacity=0.35)
+            )
+            for arrow in arrows 
+                if arrow is not node_new_head.next_arrow and arrow is not node_head.next_arrow and not isinstance(arrow, Circle)
+            ]
         )
 
         self.play(FadeOut(textfunc))
@@ -192,8 +191,14 @@ class MemoryLineScene(Scene):
         )
 
         self.play(
-            nodes.index_labels[idx + 1][0].animate.set_fill(PURPLE, opacity=1).set_stroke(PURPLE),
-            node_new_head.box.animate.set_fill(PURPLE, opacity=0.4),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not node_new_head.next_arrow and arrow is not node_head.next_arrow and not isinstance(arrow, Circle)
+            ]
         )
 
         # Update the list of original nodes
@@ -212,7 +217,15 @@ class MemoryLineScene(Scene):
         self.play(
             node_tail.box.animate.set_fill(GREEN, opacity=0.35),
             nodes.index_labels[idx][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
-            FadeIn(textfunc)
+            FadeIn(textfunc),
+            *[
+                AnimationGroup(
+                    arrow.animate.set_stroke(opacity=0.35),
+                    arrow.tip.animate.set_fill(opacity=0.35)
+                )
+                for arrow in arrows 
+                    if arrow is not node_new_tail.next_arrow and not isinstance(arrow, Circle)
+            ]
         )
 
         self.play(FadeOut(textfunc))
@@ -229,7 +242,15 @@ class MemoryLineScene(Scene):
         self.play(
             node_new_tail.box.animate.set_fill(GREEN, opacity=0.35),
             nodes.index_labels[idx - 1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
-            Transform(node_new_tail.next_arrow, arrows[-1])
+            Transform(node_new_tail.next_arrow, arrows[-1]),
+            *[
+            AnimationGroup(
+                arrow.animate.set_stroke(opacity=1), 
+                arrow.tip.animate.set_fill(opacity=1)
+            )
+            for arrow in arrows 
+                if arrow is not node_new_tail.next_arrow and not isinstance(arrow, Circle)
+            ]
         )
 
         # Update the list of original nodes
