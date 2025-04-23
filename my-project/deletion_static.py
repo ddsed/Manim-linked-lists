@@ -42,11 +42,11 @@ class LinkedListStaticScene(MovingCameraScene):
         self.wait(1)
 
         if delete_idx == 0:
-            self.delete_head(nodes, delete_idx, headtext, headarrow)
+            self.delete_node_head(nodes, delete_idx, headtext, headarrow)
         elif delete_idx == len(nodes) - 1:
-            self.delete_tail(nodes, delete_idx)
+            self.delete_node_tail(nodes, delete_idx)
         else:
-            self.delete_rows(nodes, delete_idx)
+            self.delete_node_row(nodes, delete_idx)
 
     def create_and_position_nodes(self, node_values):
         NODE_SPACING = 2
@@ -113,7 +113,7 @@ class LinkedListStaticScene(MovingCameraScene):
             last_node.set_next(None, last_node.row, last_node.row)
         self.play(FadeIn(last_node.next_arrow, run_time=0.1))
     
-    def delete_head(self, nodes, delete_idx, headtext, headarrow):
+    def delete_node_head(self, nodes, delete_idx, headtext, headarrow):
         # Find the reference node for deletion + color code it
         node_head = nodes[delete_idx] 
         node_new_head = nodes[delete_idx + 1] 
@@ -137,7 +137,7 @@ class LinkedListStaticScene(MovingCameraScene):
 
         self.zoom_in_head(node_head, node_new_head, node_for_zoom_arrow)
 
-    def delete_tail(self, nodes, delete_idx):
+    def delete_node_tail(self, nodes, delete_idx):
         # Find the reference node for deletion + color code it
         node_tail = nodes[delete_idx] 
         node_new_tail = nodes[delete_idx - 1] 
@@ -172,7 +172,7 @@ class LinkedListStaticScene(MovingCameraScene):
 
         self.zoom_in_tail(delete_idx, node_tail, node_new_tail, node_for_zoom_arrow)
 
-    def delete_rows(self, nodes, delete_idx):
+    def delete_node_row(self, nodes, delete_idx):
         # Find the reference node for deletion + color code it
         node_to_delete = nodes[delete_idx] 
         node_before = nodes[delete_idx - 1]
