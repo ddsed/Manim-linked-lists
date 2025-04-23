@@ -110,7 +110,10 @@ class LinkedListShiftScene(MovingCameraScene):
 
     def delete_node(self, nodes, delete_idx, headtext, headarrow):
         # Determines the correct method for inserting a node and calls it.
-        self.delete_node_head(nodes, delete_idx, headtext, headarrow)
+        if delete_idx == 0:
+            self.delete_node_head(nodes, delete_idx, headtext, headarrow)
+        else:
+            self.delete_node_tail(nodes, delete_idx, headtext, headarrow)
 
         # if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(nodes) - 1:
         #     self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
@@ -150,6 +153,67 @@ class LinkedListShiftScene(MovingCameraScene):
 
             self.zoom_in_head(node_head, node_new_head, node_for_zoom_arrow)
 
+    def delete_node_tail(self, nodes, idx, headtext, headarrow):
+        # Find the reference node for deletion + color code it
+        node_tail = nodes[idx] 
+        node_new_tail = nodes[idx - 1] 
+        node_for_zoom_arrow = nodes[idx - 2]   
+
+        textfunc = Text(f"delete() from tail position", font_size = 36)
+        textfunc.to_edge(UP).shift(UP * 1)
+
+        self.play(
+            node_tail.box.animate.set_fill(GREEN, opacity=0.35),
+            FadeIn(textfunc)
+        )
+
+        self.play(FadeOut(textfunc))
+
+        new_arrow = Arrow(
+            start=node_new_tail.next_arrow.get_start(), 
+            end=node_new_tail.next_arrow.get_end(), 
+            tip_shape=ArrowCircleFilledTip,
+            buff=0,
+            tip_length=0.2,
+        )
+
+        self.play(
+            FadeOut(node_tail.box),
+            FadeOut(node_tail.text),
+            FadeOut(node_tail.next_arrow),
+            Transform(node_new_tail.next_arrow, new_arrow)
+        )
+
+        # Shift if the amount of rows has chenged
+        if idx == 10 or idx == 20:
+            del nodes[idx]
+            shifts = []
+
+            shifts.append(headtext.animate.shift(DOWN * 1.5))
+            shifts.append(headarrow.animate.shift(DOWN * 1.5))
+
+            # Nodes shift up + their arrows to be centered
+            for i, node in enumerate(nodes): 
+                shifts.append(node.animate.shift(DOWN * 1.5))
+                if i < len(nodes) - 1: 
+                    shifts.append(node.next_arrow.animate.shift(DOWN * 1.5))
+                else:
+                    shifts.append(
+                        node.next_arrow.animate.put_start_and_end_on(
+                            nodes[idx - 1].get_bottom() + DOWN * 1.5 + DOWN * 0.1,
+                            nodes[idx - 1].get_bottom()  + DOWN * 2.5 + UP * 0.1
+                        )
+                    )
+                
+            self.play(
+                *shifts 
+            )
+
+        if len(nodes) < 10:
+            shift_nodes_small(self, nodes, idx, headtext, headarrow)
+
+        self.zoom_in_tail(idx, node_tail, node_new_tail, node_for_zoom_arrow)
+    
     def zoom_in_head(self, node_head, node_new_head, node_for_zoom_arrow):
         position = (node_head.get_center() + node_new_head.get_center()) / 2
         background = Rectangle(
@@ -219,6 +283,120 @@ class LinkedListShiftScene(MovingCameraScene):
             FadeOut(node_for_zoom_arrow),
             FadeOut(headtext),
             FadeOut(headarrow)
+        )
+
+        self.wait(1)
+
+    def zoom_in_tail(self, delete_idx, node_tail, node_new_tail, node_for_zoom_arrow):
+        position = (node_tail.get_center() + node_new_tail.get_center()) / 2
+        background = Rectangle(
+            width=self.camera.frame.get_width(),  
+            height=self.camera.frame.get_height(),
+
+        )
+        background.set_fill(BLACK, opacity=1)
+        background.set_stroke(opacity=0)
+
+        # Create nodes
+        node_tail_closeup = LinkedListNodeCloseup(node_tail.text.text, node_tail.row, node_tail.col).scale(0.6)
+        node_new_tail_closeup = LinkedListNodeCloseup(node_new_tail.text.text, node_new_tail.row, node_new_tail.col).scale(0.6)
+        node_for_zoom_arrow = LinkedListNodeCloseup(node_for_zoom_arrow.text.text, node_for_zoom_arrow.row, node_for_zoom_arrow.col).scale(0.6)
+        
+        # Shift for even rows
+        if node_tail.row % 2 == 0:
+            if delete_idx == 20:
+                shift_tail = DOWN * 1
+                shift_tail_new = UP * 0.7
+                shift_before_tail_new = RIGHT * 6
+            elif delete_idx == 21:
+                shift_tail = RIGHT * 2
+                shift_tail_new = LEFT * 2
+                shift_before_tail_new = LEFT * 2 + UP * 4
+            else:
+                shift_tail = RIGHT * 2
+                shift_tail_new = LEFT * 2
+                shift_before_tail_new = LEFT * 6
+        # Shift for odd rows
+        else:
+            if delete_idx == 10:
+                shift_tail = DOWN * 1
+                shift_tail_new = UP * 0.7
+                shift_before_tail_new = LEFT * 6
+            elif delete_idx == 11:
+                shift_tail = LEFT * 2
+                shift_tail_new = RIGHT * 2
+                shift_before_tail_new = RIGHT * 2 + UP * 4
+            else:
+                shift_tail = LEFT * 2
+                shift_tail_new = RIGHT * 2
+                shift_before_tail_new = RIGHT * 6
+
+        # Arange nodes on the screen + arrows
+        node_tail_closeup.shift(position + shift_tail)
+        node_new_tail_closeup.shift(position + shift_tail_new)
+        node_for_zoom_arrow.shift(position + shift_before_tail_new)
+        
+        if delete_idx == 10 or delete_idx == 20:
+            node_new_tail_closeup.next_arrow = Arrow(
+                start=node_new_tail_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node_tail_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.1 
+            )
+        else:
+            node_new_tail_closeup.next_arrow = node_new_tail_closeup.set_next(node_tail_closeup,  node_new_tail_closeup.row, node_tail_closeup.row)
+        
+        if delete_idx == 11 or delete_idx == 21:
+            node_for_zoom_arrow.next_arrow = Arrow(
+                start=node_for_zoom_arrow.get_bottom() + [0, 0.3, 0], 
+                end=node_new_tail_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.1 
+            )
+        else:
+            node_for_zoom_arrow.next_arrow = node_for_zoom_arrow.set_next(node_new_tail_closeup,  node_for_zoom_arrow.row, node_new_tail_closeup.row)
+        
+        # Display initial state
+        self.play(
+            self.camera.frame.animate.move_to(position).set(width=node_tail.width*6),
+            FadeIn(background),
+            FadeIn(node_tail_closeup),
+            node_tail_closeup.box.animate.set_fill(GREEN, opacity=0.35),
+            FadeIn(node_tail_closeup.next_arrow),
+            FadeIn(node_new_tail_closeup),
+            FadeIn(node_new_tail_closeup.next_arrow),
+            FadeIn(node_for_zoom_arrow),
+            FadeIn(node_for_zoom_arrow.next_arrow)
+        )
+
+       
+        if delete_idx == 10 or delete_idx == 20:
+            shift_deletion = 0
+        # Shift for even rows
+        elif node_tail.row % 2 == 0:
+            shift_deletion = RIGHT * 2
+        # Shift for odd rows
+        else:
+            shift_deletion = LEFT * 2
+        
+        # Perform deletion
+        self.play(
+            FadeOut(node_tail_closeup),
+            FadeOut(node_new_tail_closeup.next_arrow)
+        )
+        self.play(
+            node_new_tail_closeup.animate.shift(shift_deletion),
+            node_for_zoom_arrow.animate.shift(shift_deletion),
+            node_for_zoom_arrow.next_arrow.animate.shift(shift_deletion)
+        )
+
+        # Clear screen and zoom out
+        self.play(
+            self.camera.frame.animate.move_to(ORIGIN).set(width=14 * 1.5),
+            FadeOut(background),
+            FadeOut(node_new_tail_closeup),
+            FadeOut(node_for_zoom_arrow),
+            FadeOut(node_for_zoom_arrow.next_arrow)
         )
 
         self.wait(1)
