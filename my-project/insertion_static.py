@@ -442,19 +442,13 @@ class LinkedListStaticScene(MovingCameraScene):
         if node1.row != node2.row:
             node1_closeup.shift(position + UP * 0.7)
             node2_closeup.shift(position + DOWN * 0.7)
-            if node1.row % 2 == 0: # Moving down from even row (Right to Left next)
-                node1_closeup.next_arrow = CurvedArrow(
-                    start_point=node1_closeup.get_bottom() + [0, 0.3, 0], 
-                    end_point=node2_closeup.get_left() + [0, 0.3, 0],
-                    tip_length=0.2
-                )
-            else: # Moving down from odd row (Left to Right next)
-                node1_closeup.next_arrow = CurvedArrow(
-                    start_point=node1_closeup.get_bottom() + [0, 0.3, 0], 
-                    end_point=node2_closeup.get_right() + [0, 0.3, 0],
-                    angle=-TAU/4, 
-                    tip_length=0.2
-                )
+            node1_closeup.next_arrow = Arrow(
+                start=node1_closeup.get_bottom() + [0, 0.3, 0],
+                end=node2_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.04
+            )
+            node1_closeup.next_arrow.set_stroke(width=4)
         # Same row
         else:
             if node1.get_center()[0] < node2.get_center()[0]:

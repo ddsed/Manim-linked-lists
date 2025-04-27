@@ -672,19 +672,13 @@ class LinkedListShiftScene(MovingCameraScene):
         if node1.row != node2.row:
             node1_closeup.shift(position + UP * 0.7)
             node2_closeup.shift(position + DOWN * 0.7)
-            if node1.row % 2 == 0: # Moving down from even row (Right to Left next)
-                node1_closeup.next_arrow = CurvedArrow(
-                    start_point=node1_closeup.get_bottom() + [0, 0.3, 0], 
-                    end_point=node2_closeup.get_left() + [0, 0.3, 0],
-                    tip_length=0.2
-                )
-            else: # Moving down from odd row (Left to Right next)
-                node1_closeup.next_arrow = CurvedArrow(
-                    start_point=node1_closeup.get_bottom() + [0, 0.3, 0], 
-                    end_point=node2_closeup.get_right() + [0, 0.3, 0],
-                    angle=-TAU/4, 
-                    tip_length=0.2
-                )
+            node1_closeup.next_arrow = Arrow(
+                start=node1_closeup.get_bottom() + [0, 0.3, 0],
+                end=node2_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.04
+            )
+            node1_closeup.next_arrow.set_stroke(width=4)
         # Same row
         else:
             if node1.get_center()[0] < node2.get_center()[0]:
@@ -747,7 +741,31 @@ class LinkedListShiftScene(MovingCameraScene):
         )
 
         if idx1 == 9 or idx1 == 19:
-            pass
+            if idx1 == 9:
+                shift=LEFT * 4
+            else:
+                shift=RIGHT * 4
+            new_arrow_to = Arrow(
+                start=node1_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node2_closeup.get_top(),
+                tip_length=0.2,
+                buff=0.04
+            )
+            new_arrow_to.set_stroke(width=4)
+
+            new_arrow_from = Arrow(
+                start=node2_closeup.get_bottom() + [0, 0.3, 0], 
+                end=node2_closeup.get_center() + shift,
+                tip_length=0.2,
+                buff=0.1 
+            )
+
+            self.play(
+                node_closeup.animate.move_to(node2_closeup.get_center()),
+                node2_closeup.animate.move_to(node2_closeup.get_center() + shift),
+                Transform(node1_closeup.next_arrow, new_arrow_to),
+                Transform(node_closeup.next_arrow, new_arrow_from)
+            )
         # Shifting for even rows
         else:
             if node1.row % 2 == 0:
