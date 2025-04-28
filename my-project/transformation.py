@@ -1,9 +1,8 @@
 from manim import *
-from memory_unit import MemoryUnit
 from node_closeup import LinkedListNodeCloseup
 import random
 
-class LinkedListScene(Scene):
+class TransformationScene(Scene):
     def construct(self):
         # Show animation without cropping
         scale_factor = 1.5
