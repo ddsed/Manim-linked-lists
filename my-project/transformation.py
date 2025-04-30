@@ -96,6 +96,7 @@ class TransformationScene(Scene):
         used_indices = set()
         node_texts_in_memory = []
         node_indices = []
+        node_index_to_label = {} 
 
         for i in range(len(nodes)):
             # Pick random memory slots
@@ -136,7 +137,9 @@ class TransformationScene(Scene):
             )
             node_texts_in_memory.append(node_text)
             node_indices.append(index_with_bg)
+            node_index_to_label[i] = memory_labels[idx1] 
             self.wait(0.2)
+        
         self.play(
             VGroup(*memory_units).animate.shift(UP * 3),
             VGroup(*node_texts_in_memory).animate.shift(UP * 3),
@@ -145,7 +148,9 @@ class TransformationScene(Scene):
             memory_text.animate.shift(UP * 3)
         )
 
-        self.create_arrows(node_texts_in_memory)
+        arrows = self.create_arrows(node_texts_in_memory)
+        self.transform_pointers(arrows, node_index_to_label)
+        
 
     def create_arrows(self, node_texts_in_memory):
         arrows = VGroup()
@@ -189,3 +194,23 @@ class TransformationScene(Scene):
                 self.play(FadeIn(arrow, run_time=0.2))
 
         return arrows
+    
+    def transform_pointers(self, arrows, pointer_targets):
+        for i in range(len(arrows) - 1):  # Skip the last dot
+            arrow = arrows[i]
+            label = pointer_targets[i + 1]
+            label_copy = label.copy()
+            self.play(
+                FadeOut(label),
+                label_copy.animate.scale(1.5),
+                arrow.animate.set_color(ORANGE)
+            )
+            circle = Circle(radius=0.2)
+            circle.set_opacity(0) 
+            circle.move_to(arrow.get_start())
+            self.play(
+                FadeIn(label),
+                label_copy.animate.scale(1 / 1.5).rotate(PI / 2).move_to(circle.get_center() + UP * 0.9),
+                Transform(arrow, circle)
+            )
+            self.wait(0.3)
