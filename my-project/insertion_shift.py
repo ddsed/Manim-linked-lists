@@ -66,7 +66,7 @@ class LinkedListShiftScene(MovingCameraScene):
     def insert_node(self, nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow):
         #Determines the correct method for inserting a node and calls it.
         if (insert_idx1 == 9 or insert_idx1 == 19) and insert_idx1 != len(nodes) - 1:
-            self.insert_node_inbetween_lines(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
+            self.insert_node_inbetween_rows(nodes, insert_idx1, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx2 == 0:
             self.insert_node_head(nodes, insert_idx2, new_letter, headtext, headarrow)
         elif insert_idx1 == len(nodes) - 1:
@@ -494,7 +494,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
         self.zoom_in_rows(idx1, node1, node2, new_node)
     
-    def insert_node_inbetween_lines(self, nodes, idx1, idx2, new_value, headtext, headarrow):
+    def insert_node_inbetween_rows(self, nodes, idx1, idx2, new_value, headtext, headarrow):
         # Find the reference nodes for insertion + color code them
         node1 = nodes[idx1]
         node2 = nodes[idx2]     
