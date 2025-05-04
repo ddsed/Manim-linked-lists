@@ -1,5 +1,5 @@
 from manim import *
-from node_basic import LinkedListNodeBasic
+from linked_list_vgroup import LinkedListVGroup
 from node_closeup import LinkedListNodeCloseup
 
 class LinkedListShiftScene(MovingCameraScene):
@@ -11,7 +11,7 @@ class LinkedListShiftScene(MovingCameraScene):
         self.camera.frame_center = ORIGIN  # Keep centered
 
         # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 2, max = 29): ").split()
+        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").split()
         last_index = len(node_values) - 1
 
         delete_idx = int(input(
@@ -20,70 +20,21 @@ class LinkedListShiftScene(MovingCameraScene):
         ))
 
         # Create and position nodes
-        nodes = self.create_and_position_nodes(node_values)
-
-        # Center the structure
-        self.center_nodes(nodes)
-
-        # Create head pointer
-        headtext = Text("HEAD", font_size=26, color=YELLOW)
-        headtext.next_to(nodes[0], UP, buff=1).align_to(nodes[0], LEFT)
-        headarrow = Arrow(
-            start=headtext.get_bottom(), 
-            end=nodes[0].get_top(),
-            buff=0.1,
-            tip_length=0.2,
-            color=YELLOW
-        )
+        list = LinkedListVGroup(node_values)
 
         # Animate nodes appearance
-        self.animate_nodes(nodes, headtext, headarrow)
+        self.animate_nodes(list.nodes, list.headtext, list.headarrow)
 
         self.wait(1)
 
         # Determines the correct method for inserting a node and calls it
         if delete_idx == 0:
-            self.delete_node_head(nodes, delete_idx, headtext, headarrow)
-        elif delete_idx == len(nodes) - 1:
-            self.delete_node_tail(nodes, delete_idx, headtext, headarrow)
+            self.delete_node_head(list.nodes, delete_idx, list.headtext, list.headarrow)
+        elif delete_idx == len(list.nodes) - 1:
+            self.delete_node_tail(list.nodes, delete_idx, list.headtext, list.headarrow)
         else:
-            self.delete_node_row(nodes, delete_idx, headtext, headarrow)
+            self.delete_node_row(list.nodes, delete_idx, list.headtext, list.headarrow)
 
-    def create_and_position_nodes(self, node_values):
-        NODE_SPACING = 2
-        ROW_SPACING = 3
-        
-        nodes = [LinkedListNodeBasic(value, row=i//10, col=i%10) for i, value in enumerate(node_values)]
-        
-        for i, node in enumerate(nodes):
-            row = i // 10
-            col = i % 10
-            
-            x_pos = RIGHT * col * NODE_SPACING if row % 2 == 0 else RIGHT * (9 - col) * NODE_SPACING
-            y_pos = DOWN * row * ROW_SPACING
-            
-            node.move_to(x_pos + y_pos)
-        
-        return nodes
-
-    def center_nodes(self, nodes):
-        if not nodes:
-            return
-        
-        leftmost = min(node.get_left()[0] for node in nodes)
-        if len(nodes) < 10:
-            rightmost = max(node.get_right()[0] + 1 for node in nodes)
-        else:
-            rightmost = max(node.get_right()[0] for node in nodes)
-        topmost = max(node.get_top()[1] for node in nodes)
-        bottommost = min(node.get_bottom()[1] for node in nodes)
-
-        structure_center = np.array([(leftmost + rightmost) / 2, (topmost + bottommost) / 2, 0])
-        shift_amount = ORIGIN - structure_center
-
-        for node in nodes:
-            node.shift(shift_amount)
-    
     def animate_nodes(self, nodes, headtext, headarrow):
         textfuncadd = Text("add()", font_size=36)
         textfuncarrow = Text("nodes[i - 1].set_next(node[i])", font_size=36)
