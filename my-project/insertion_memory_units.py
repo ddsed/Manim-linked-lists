@@ -10,18 +10,36 @@ class MemoryLineScene(Scene):
         self.camera.frame_height = self.camera.frame_width / 1.78  # Keep 16:9 aspect ratio
         self.camera.frame_center = ORIGIN  # Keep centered
 
-        # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, max = 29): ").split()
+        # Get and validate node values input from user
+        while True:
+            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, min = 2, max = 29): ").strip().split()
+            if len(node_values) < 2:
+                print("\033[91mInvalid input: Must provide at least 2 nodes.")
+            elif len(node_values) > 29:
+                print("\033[91mInvalid input: Maximum allowed nodes is 29.")
+            else:
+                break  # if valid input
+
         last_index = len(node_values) - 1
 
-        insert_idx1, insert_idx2 = map(int, input(
-            f"Enter the two node indices where a new node should be inserted (0-based).\n"
-            f"If you want to insert to the head – enter 0 0;\n"
-            f"If you want to insert to the tail – enter the index of the last node (={last_index}) twice: "
-        ).split())
+        # Get and validate insert indices input from user
+        while True:
+            try:
+                insert_idx1, insert_idx2 = map(int, input(
+                    f"\033[0m\nEnter the two node indices where a new node should be inserted (0-based).\n"
+                    f"\033[0mIf you want to insert to the head – enter 0 0;\n"
+                    f"\033[0mIf you want to insert to the tail – enter the index of the last node (={last_index}) twice: "
+                ).split())
+                if not (0 <= insert_idx1 <= last_index and 0 <= insert_idx2 <= last_index):
+                    print("\033[91mInvalid input: Indices are out of range. Please, eneter valid indices")
+                elif abs(insert_idx1 - insert_idx2) > 1 or insert_idx1 > insert_idx2 or (insert_idx1 == insert_idx2 and insert_idx1 != last_index and insert_idx2 != 0):
+                    print("\033[91mInvalid input: Indices must be adjacent and consequtive. Only in case of head/tail insertion they are the same.")
+                else:
+                    break
+            except ValueError as e:
+                print(f"\033[91mInvalid input: {e}")
 
         new_letter = input("Enter the new node letter: ")
-
 
         # Create memory line with both values and empty units
         memory_line = MemoryUnitsVGroup(node_values)

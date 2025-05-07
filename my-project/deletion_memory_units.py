@@ -10,14 +10,31 @@ class MemoryLineScene(Scene):
         self.camera.frame_height = self.camera.frame_width / 1.78  # Keep 16:9 aspect ratio
         self.camera.frame_center = ORIGIN  # Keep centered
 
-        # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, max = 29): ").split()
+        # Get and validate node values input from user
+        while True:
+            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").strip().split()
+            if len(node_values) < 3:
+                print("\033[91mInvalid input: Must provide at least 3 nodes.")
+            elif len(node_values) > 30:
+                print("\033[91mInvalid input: Maximum allowed nodes is 30.")
+            else:
+                break  # if valid input
+
         last_index = len(node_values) - 1
 
-        delete_idx = int(input(
-            f"Enter the index of the node to delete (0-based).\n"
-            f"Valid range: 0 to {last_index}: "
-        ))
+        # Get and validate insert indices input from user
+        while True:
+            try:
+                delete_idx = int(input(
+                    f"\033[0m\nEnter the index of the node to delete (0-based).\n"
+                    f"\033[0mValid range: 0 to {last_index}: "
+                ))
+                if not (0 <= delete_idx <= last_index):
+                    print("\033[91mInvalid input: Index is out of range. Please, eneter valid index")
+                else:
+                    break
+            except ValueError as e:
+                print(f"\033[91mInvalid input: {e}")
 
         # Create memory line with both values and empty units
         memory_line = MemoryUnitsVGroup(node_values)
@@ -166,14 +183,16 @@ class MemoryLineScene(Scene):
             nodes.index_labels[idx][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
             node_head.next_arrow.animate.shift(DOWN * 0.01).set_color(GREEN).set_stroke(width=10),
             FadeIn(textfunc),
-            *[
-            AnimationGroup(
-                arrow.animate.set_stroke(opacity=0.35),
-                arrow.tip.animate.set_fill(opacity=0.35)
-            )
-            for arrow in arrows 
-                if arrow is not node_new_head.next_arrow and arrow is not node_head.next_arrow and not isinstance(arrow, Circle)
-            ]
+            *([
+                AnimationGroup(
+                    arrow.animate.set_stroke(opacity=0.35),
+                    arrow.tip.animate.set_fill(opacity=0.35)
+                )
+                for arrow in arrows 
+                if arrow is not node_new_head.next_arrow 
+                and arrow is not node_head.next_arrow 
+                and not isinstance(arrow, Circle)
+            ] if len(nodes) > 3 else [])
         )
 
         self.play(FadeOut(textfunc))
@@ -190,16 +209,19 @@ class MemoryLineScene(Scene):
             nodes.index_labels[idx + 1][0].animate.set_fill(GREEN, opacity=1).set_stroke(GREEN),
         )
 
-        self.play(
-            *[
-            AnimationGroup(
-                arrow.animate.set_stroke(opacity=1), 
-                arrow.tip.animate.set_fill(opacity=1)
-            )
-            for arrow in arrows 
-                if arrow is not node_new_head.next_arrow and arrow is not node_head.next_arrow and not isinstance(arrow, Circle)
+        if len(nodes) > 3:
+            animations = [
+                AnimationGroup(
+                    arrow.animate.set_stroke(opacity=1), 
+                    arrow.tip.animate.set_fill(opacity=1)
+                )
+                for arrow in arrows 
+                if arrow is not node_new_head.next_arrow 
+                and arrow is not node_head.next_arrow 
+                and not isinstance(arrow, Circle)
             ]
-        )
+            if animations:
+                self.play(*animations)
 
         # Update the list of original nodes
         del nodes.original_nodes[idx]

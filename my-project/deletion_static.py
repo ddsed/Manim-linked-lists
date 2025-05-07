@@ -10,14 +10,31 @@ class LinkedListStaticScene(MovingCameraScene):
         self.camera.frame_height = self.camera.frame_width / 1.78  # Keep 16:9 aspect ratio
         self.camera.frame_center = ORIGIN  # Keep centered
 
-        # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").split()
+        # Get and validate node values input from user
+        while True:
+            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").strip().split()
+            if len(node_values) < 3:
+                print("\033[91mInvalid input: Must provide at least 3 nodes.")
+            elif len(node_values) > 30:
+                print("\033[91mInvalid input: Maximum allowed nodes is 30.")
+            else:
+                break  # if valid input
+
         last_index = len(node_values) - 1
 
-        delete_idx = int(input(
-            f"Enter the index of the node to delete (0-based).\n"
-            f"Valid range: 0 to {last_index}: "
-        ))
+        # Get and validate insert indices input from user
+        while True:
+            try:
+                delete_idx = int(input(
+                    f"\033[0m\nEnter the index of the node to delete (0-based).\n"
+                    f"\033[0mValid range: 0 to {last_index}: "
+                ))
+                if not (0 <= delete_idx <= last_index):
+                    print("\033[91mInvalid input: Index is out of range. Please, eneter valid index")
+                else:
+                    break
+            except ValueError as e:
+                print(f"\033[91mInvalid input: {e}")
 
         # Create and position nodes
         list = LinkedListVGroup(node_values)
