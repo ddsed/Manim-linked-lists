@@ -699,7 +699,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
 def shift_nodes_small(scene, nodes, idx, headtext, headarrow):
     del nodes[idx]
-    shift = RIGHT * 0.5 #if len(nodes) < 9 else RIGHT * 0.5
+    shift = RIGHT * 0.5
     shifts = []
 
     shifts.append(headtext.animate.shift(shift))
