@@ -106,7 +106,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
             self.play(shifts)
 
-            if len(nodes) < 10:
+            if len(nodes) < 11:
                 shift_nodes_small(self, nodes, idx, headtext, headarrow)
 
             self.zoom_in_head(node_head, node_new_head, node_for_zoom_arrow)
@@ -167,7 +167,7 @@ class LinkedListShiftScene(MovingCameraScene):
                 *shifts 
             )
 
-        if len(nodes) < 10:
+        if len(nodes) < 11:
             shift_nodes_small(self, nodes, idx, headtext, headarrow)
 
         self.zoom_in_tail(idx, node_tail, node_new_tail, node_for_zoom_arrow)
@@ -289,7 +289,7 @@ class LinkedListShiftScene(MovingCameraScene):
             Transform(node_before.next_arrow, arrow_after_shift)
         )
 
-        if len(nodes) < 10:
+        if len(nodes) < 11:
             shift_nodes_small(self, nodes, idx, headtext, headarrow)
 
         self.zoom_in_rows(node_to_delete, node_before, node_after, idx)
@@ -699,7 +699,7 @@ class LinkedListShiftScene(MovingCameraScene):
 
 def shift_nodes_small(scene, nodes, idx, headtext, headarrow):
     del nodes[idx]
-    shift = RIGHT * 1 if len(nodes) < 9 else RIGHT * 0.5
+    shift = RIGHT * 0.5 #if len(nodes) < 9 else RIGHT * 0.5
     shifts = []
 
     shifts.append(headtext.animate.shift(shift))

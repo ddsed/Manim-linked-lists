@@ -331,38 +331,12 @@ class LinkedListShiftScene(MovingCameraScene):
         self.play(FadeOut(textfunc))
 
         if len(nodes) < 10:
-            if len(nodes) < 9:
-                shift_left = LEFT * 1
-                shift_right = RIGHT * 1
-            else:
-                shift_left = LEFT * 0.5
-                shift_right = RIGHT * 1.5
-            # Shift simultaneously before manipulation
-            shifts = []
-
-            shifts.append(headtext.animate.shift(shift_left))
-            shifts.append(headarrow.animate.shift(shift_left))
-            # Nodes from the first node to node1 left by 1 unit + their arrows
-            for node in nodes[:nodes.index(node1) + 1]: 
-                shifts.append(node.animate.shift(shift_left))
-                shifts.append(node.next_arrow.animate.shift(shift_left)) 
-
-            # Nodes from node2 to the last node right by 1 unit + their arrows
-            for node in nodes[nodes.index(node2):]: 
-                shifts.append(node.animate.shift(shift_right))
-                if node.next_arrow:
-                    if nodes.index(node) == 8:
-                        shifts.append(node.next_arrow.animate.put_start_and_end_on(
-                            node.get_bottom() + shift_right + DOWN * 0.1,
-                            node.get_bottom() + shift_right + DOWN * 1
-                        ))
-                    else:
-                        shifts.append(node.next_arrow.animate.shift(shift_right))
+            shifts=shift_nodes_small_row(nodes, node1, node2, headtext, headarrow)
             
             # New stretched arrow
             long_arrow = Arrow (
-                start=node1.get_right() + shift_left, 
-                end=node2.get_left() + shift_right,
+                start=node1.get_right() + LEFT * 1, 
+                end=node2.get_left() + RIGHT * 1,
                 tip_length=0.2,
                 buff=0.1 
             )
@@ -1022,8 +996,34 @@ class LinkedListShiftScene(MovingCameraScene):
 
         self.wait(1)
 
+def shift_nodes_small_row(nodes, node1, node2, headtext, headarrow):
+    shift_left = LEFT * 1
+    shift_right = RIGHT * 1
+    # Shift simultaneously before manipulation
+    shifts = []
+
+    shifts.append(headtext.animate.shift(shift_left))
+    shifts.append(headarrow.animate.shift(shift_left))
+    # Nodes from the first node to node1 left by 1 unit + their arrows
+    for node in nodes[:nodes.index(node1) + 1]: 
+        shifts.append(node.animate.shift(shift_left))
+        shifts.append(node.next_arrow.animate.shift(shift_left)) 
+
+    # Nodes from node2 to the last node right by 1 unit + their arrows
+    for node in nodes[nodes.index(node2):]: 
+        shifts.append(node.animate.shift(shift_right))
+        if node.next_arrow:
+            if nodes.index(node) == 8:
+                shifts.append(node.next_arrow.animate.put_start_and_end_on(
+                    node.get_bottom() + shift_right + DOWN * 0.1,
+                    node.get_bottom() + shift_right + DOWN * 1
+                ))
+            else:
+                shifts.append(node.next_arrow.animate.shift(shift_right))
+    return shifts
+
 def shift_nodes_small(scene, nodes, new_node, headtext, headarrow):
-    shift = LEFT * 1 if len(nodes) < 9 else LEFT * 0.5
+    shift = LEFT * 1
     shifts = []
 
     shifts.append(headtext.animate.shift(shift))
