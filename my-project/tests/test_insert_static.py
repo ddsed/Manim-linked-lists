@@ -43,6 +43,9 @@ def test_linked_list_static_insert_all_positions(size):
         # Patch the input function to simulate user input during the test
         with patch("builtins.input", side_effect=inputs):
             with tempconfig({"quality": "low_quality", "disable_caching": True}):
-                # Scene for testing
-                scene = LinkedListStaticScene()
-                scene.render()
+                try:
+                    # Scene for testing
+                    scene = LinkedListStaticScene()
+                    scene.render()
+                except Exception as e:
+                    pytest.fail(f"Rendering failed for size {size} with error: {e}")

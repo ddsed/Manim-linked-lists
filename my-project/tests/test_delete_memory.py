@@ -40,6 +40,9 @@ def test_memory_units_delete_all_positions(size):
         # Patch the input function to simulate user input during the test
         with patch("builtins.input", side_effect=inputs):
             with tempconfig({"quality": "low_quality", "disable_caching": True}):
-                # Scene for testing
-                scene = MemoryLineScene()
-                scene.render()
+                try:
+                    # Scene for testing
+                    scene = MemoryLineScene()
+                    scene.render()
+                except Exception as e:
+                    pytest.fail(f"Rendering failed for size {size} with error: {e}")

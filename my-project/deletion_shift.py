@@ -712,10 +712,10 @@ def shift_nodes_small(scene, nodes, idx, headtext, headarrow):
 
     scene.play(*shifts)
  
-def shift_nodes_to_the_left(nodes, idx2):
+def shift_nodes_to_the_left(nodes, idx):
     shifts = []
 
-    for i in range(idx2 + 1, len(nodes)):
+    for i in range(idx + 1, len(nodes)):
         node_i = nodes[i]
         node_prev = nodes[i - 1]
 
