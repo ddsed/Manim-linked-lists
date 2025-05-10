@@ -751,28 +751,20 @@ def shift_nodes_small(scene, nodes, idx, headtext, headarrow):
 
     scene.play(*shifts)
 
-def shift_nodes_to_the_left(nodes, idx2):
+def shift_nodes_to_the_left(nodes, idx):
     shifts = []
 
-    for i in range(idx2 + 1, len(nodes)):
+    for i in range(idx + 1, len(nodes)):
         node_i = nodes[i]
         node_prev = nodes[i - 1]
 
         # Shift node_i to the previous node's position
-        if i == len(nodes) - 1:
-            if i == 10 or i == 20:
-                shifts.append(node_i.animate.shift(UP * 3))
-            elif node_i.row % 2 != 0:
-                shifts.append(node_i.animate.shift(RIGHT * 2))
-            else:
-                shifts.append(node_i.animate.shift(LEFT * 2))
-        else:
-            shifts.append(node_i.animate.move_to(node_prev.get_center()))
+        shifts.append(node_i.animate.move_to(node_prev.get_center()))
 
         # Update the next_arrow
         if node_i.next_arrow:
             # Even lines without edge cases
-            if node_i.row % 2 == 0 and i != 9 and i != 10 and i != 20 and i != 29:
+            if node_i.row % 2 == 0 and i != 9 and i != 20 and i != 29:
                 shifts.append(node_i.next_arrow.animate.shift(LEFT * 2))
             # From odd to even line — short arrow
             elif i == 9 or i == 29:
