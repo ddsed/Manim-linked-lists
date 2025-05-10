@@ -10,8 +10,15 @@ class TransformationScene(Scene):
         self.camera.frame_height = self.camera.frame_width / 1.78  # Keep 16:9 aspect ratio
         self.camera.frame_center = ORIGIN  # Keep centered
 
-        # Get input from user
-        node_values = input("Enter node letters separated by space (e.g., A B C D, max = 5): ").split()
+        # Get input from user and validate it
+        while True:
+            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, max = 5): ").split()
+            if len(node_values) < 1:
+                print("\033[91mInvalid input: Must provide at least 1 node.")
+            elif len(node_values) > 5:
+                print("\033[91mInvalid input: Maximum allowed nodes is 5.")
+            else:
+                break  # if valid input
 
         # Create nodes
         nodes = [LinkedListNodeCloseup(value) for value in node_values]
@@ -26,7 +33,6 @@ class TransformationScene(Scene):
         for node in nodes:
             node.shift(shift_amount)
 
-        
         # Texts for code commands
         textfuncadd = Text("add()", font_size = 36) 
         textfuncadd.next_to(nodes[0], UP, buff=0.5)
