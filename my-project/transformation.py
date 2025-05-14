@@ -99,7 +99,7 @@ class TransformationScene(Scene):
         return memory_labels
 
     def convert_to_memory_units(self, nodes, memory_units, memory_labels, memory_text):
-        used_indices = set()
+        used_units = set()
         node_texts_in_memory = []
         node_indices = []
         node_index_to_label = {} 
@@ -108,8 +108,8 @@ class TransformationScene(Scene):
             # Pick random memory slots
             while True:
                 idx1 = random.randint(0, len(memory_units) - 1)
-                if idx1 not in used_indices:
-                    used_indices.add(idx1)
+                if idx1 not in used_units:
+                    used_units.add(idx1)
                     break
 
             target = memory_units[idx1].get_center() + LEFT * 0.45
@@ -157,7 +157,6 @@ class TransformationScene(Scene):
         arrows = self.create_arrows(node_texts_in_memory)
         self.transform_pointers(arrows, node_index_to_label)
         
-
     def create_arrows(self, node_texts_in_memory):
         arrows = VGroup()
 
