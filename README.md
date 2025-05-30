@@ -56,6 +56,7 @@ This project contributes to computer science educational resources by developing
    ```bash
    git clone https://github.com/ddsed/Manim-linked-lists.git
 2. Render an animation (the second command is an example)
+   ```bash
    cd singly-linked-list
    manim -pql insertion_shift.py LinkedListShiftScene
 
