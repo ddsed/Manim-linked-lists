@@ -27,23 +27,14 @@ This project contributes to computer science educational resources by developing
 
 ## Repository structure
 /singly-linked-list                     # Main folder containing all source code
-
 │
-
 ├── /tests                              # Folder containing unit tests
-
 │
-
 ├── name-of-operation_static.py         # Scene class for static chain representation
-
 ├── name-of-operation_shift.py          # Scene class for dynamic chain representation
-
 ├── name-of-operation_memory_units.py   # Scene class for non-contiguous memory model representation
-
 ├── transformation.py                   # Scene class for animated transformation between abstraction levels
-
 │
-
 ├── element-name_vgroup.py              # VGroup classes for individual visual components
 
 ---
