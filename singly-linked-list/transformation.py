@@ -12,11 +12,11 @@ class TransformationScene(Scene):
 
         # Get input from user and validate it
         while True:
-            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, max = 5): ").split()
+            node_values = input("\033[0m\nEnter node values separated by space (e.g., A B C D, max = 5): ").split()
             if len(node_values) < 1:
-                print("\033[91mInvalid input: Must provide at least 1 node.")
+                print("\033[91mInvalid input: Must provide at least 1 value.")
             elif len(node_values) > 5:
-                print("\033[91mInvalid input: Maximum allowed nodes is 5.")
+                print("\033[91mInvalid input: Maximum allowed values is 5.")
             else:
                 break  # if valid input
 

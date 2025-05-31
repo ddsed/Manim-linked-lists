@@ -12,11 +12,11 @@ class LinkedListShiftScene(MovingCameraScene):
 
         # Get and validate node values input from user
         while True:
-            node_values = input("\033[0m\nEnter node letters separated by space (e.g., A B C D, min = 3, max = 30): ").strip().split()
+            node_values = input("\033[0m\nEnter node values separated by space (e.g., A B C D, min = 3, max = 30): ").strip().split()
             if len(node_values) < 3:
-                print("\033[91mInvalid input: Must provide at least 3 nodes.")
+                print("\033[91mInvalid input: Must provide at least 3 values.")
             elif len(node_values) > 30:
-                print("\033[91mInvalid input: Maximum allowed nodes is 30.")
+                print("\033[91mInvalid input: Maximum allowed values is 30.")
             else:
                 break  # if valid input
 
