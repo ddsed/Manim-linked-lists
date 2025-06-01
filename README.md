@@ -14,7 +14,7 @@ This project contributes to computer science educational resources by developing
 
 ## Features
 
-- Visualizes linked lists with accurate representation of non-contiguous memory allocation.
+- Visualizes singly linked lists with accurate representation of non-contiguous memory allocation.
 - Supports multiple abstraction levels: static chain, dynamic chain, and memory model representations.
 - Interactive animations demonstrating insertion and deletion operations.
 - Animated transformation between high and low levels of abstraction.
@@ -30,9 +30,10 @@ This project contributes to computer science educational resources by developing
 │
 ├── tests/                             # Folder containing unit tests
 │
-├── name-of-operation_static.py        # Scene class for static chain representation
-├── name-of-operation_shift.py         # Scene class for dynamic chain representation
-├── name-of-operation_memory_units.py  # Scene class for non-contiguous memory model representation
+├── name-of-operation_static.py        # Scene classes for static chain representation
+├── name-of-operation_shift.py         # Scene classes for dynamic chain representation
+├── name-of-operation_memory_units.py  # Scene classes for non-contiguous memory model representation
+├── name-of-operation_overview.py      # Scene classes for singly linked list representations overview
 ├── transformation.py                  # Scene class for animated transformation between abstraction levels
 │
 ├── element-name_vgroup.py             # VGroup classes for individual visual components
